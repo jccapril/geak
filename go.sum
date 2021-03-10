@@ -1,4 +1,10 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
+gitee.com/jlab/biz v1.0.0 h1:6orIQgXTPjCkiV2wu5Xd3brAxsuQZyTxQvp0NiWQ4/M=
+gitee.com/jlab/biz v1.0.0/go.mod h1:CXKdFlmRuml4CRWKRSX4/tu0xkH40HTQq1AXrWs6CeM=
+gitee.com/jlab/biz v1.0.1 h1:2BUJZRzxC+qzl6X/NdREI9+83sqeoLa9rcsZv7hebBg=
+gitee.com/jlab/biz v1.0.1/go.mod h1:CXKdFlmRuml4CRWKRSX4/tu0xkH40HTQq1AXrWs6CeM=
+gitee.com/jlab/biz v1.0.2 h1:YkHTddFy6f//O7QRkBHcvkO50tmdRdzaxAxud93TgVg=
+gitee.com/jlab/biz v1.0.2/go.mod h1:CXKdFlmRuml4CRWKRSX4/tu0xkH40HTQq1AXrWs6CeM=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=

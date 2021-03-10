@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package jeak;
+option go_package = "biz/user";
+
+service User {
+    // 获取用户资料
+    rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+}
+
+// 获取用户资料
+
+message GetProfileRequest {
+    string guid = 1; // 用户 guid
+}
+
+message GetProfileResponse {
+    int64 errCode = 1;
+    string errMsg = 2;
+    BasicProfile basicProfile = 3; // 基本信息
+}
+
+message BasicProfile {
+    int64 userID = 1; // 用户 id
+    string guid = 2; // 用户 guid
+    string username = 3; // 昵称
+}

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "user.proto";
+package jeak;
+option go_package = "biz/login";
+
+service Login {
+    rpc NormalLogin(NormalLoginRequest) returns (NormalLoginResponse);
+}
+
+message NormalLoginRequest {
+    string mobile = 1; // 手机号
+    string password = 2; // 密码
+}
+
+message NormalLoginResponse {
+    int64 errCode = 1;
+    string errMsg = 2;
+    string guid = 3; // 用户 guid
+    BasicProfile UserInfo = 4; // 用户信息
+}
