@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"gitee.com/jlab/biz/login"
 	"gitee.com/jlab/biz/user"
+	"google.golang.org/grpc/metadata"
+
 	//login "geak/model"
 	"google.golang.org/grpc"
 	"log"
@@ -14,8 +17,17 @@ type server struct {
 	login.UnimplementedLoginServer
 }
 
-func (s *server) Login(ctx context.Context, in *login.NormalLoginRequest) (*login.NormalLoginResponse, error) {
+func (s *server) NormalLogin(ctx context.Context, in *login.NormalLoginRequest) (*login.NormalLoginResponse, error) {
 	log.Printf("Received Moble: %v password:%v", in.GetMobile(),in.GetPassword())
+
+	// 获取请求头
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		fmt.Printf("get metadata error")
+	}
+	fmt.Println(md["x-jeak-bid"])
+	
+	// 返回数据
 	return &login.NormalLoginResponse{
 		Guid:"100",
 		UserInfo:&user.BasicProfile{
