@@ -7,13 +7,26 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+const (
+
+)
+
+var lotteryNameList = []string{"双色球","大乐透","福彩3D","排列3"}
+
 type LotteryController struct {
 	lottery.UnimplementedLotteryServer
 }
 
 func (c *LotteryController) GetLastLottery(ctx context.Context, in *lottery.GetLastLotteryRequest) (*lottery.GetLastLotteryResponse,error) {
+	var errCode int64 = 0
+	var errMsg string = ""
+	var err error
 	t := in.GetType()
-	fmt.Println(t)
+	if t < 0 || t > 3 {
+		return makeResponse(errCode,errMsg,nil,err)
+	}
+	name := lotteryNameList[t]
+
 	// 获取请求头
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -21,20 +34,26 @@ func (c *LotteryController) GetLastLottery(ctx context.Context, in *lottery.GetL
 	}
 	fmt.Println(md["x-jeak-bid"])
 
+	data := &m.Lottery{
+		LotteryID:       1001,
+		Type:            t,
+		Name:            name,
+		Phase:           20210421,
+		Date:            1318238129389,
+		Red:             "01|02|03|04|05|06",
+		Blue:            "01",
+		FirstPrizeCount: 8,
+		FirstPrizeMoney: 8080808,
+		RewardPoolMoney: 88080808,
+	}
+
+	return makeResponse(errCode,errMsg,data,err)
+}
+
+func makeResponse(errCode int64, errMsg string,data *m.Lottery,err error)(*lottery.GetLastLotteryResponse,error) {
 	return &lottery.GetLastLotteryResponse{
-		ErrCode: 0,
-		ErrMsg:  "",
-		Lottery: &m.Lottery{
-			LotteryID:       1,
-			Type:            0,
-			Name:            "双色球",
-			Phase:           0,
-			Date:            0,
-			Red:             "01|02|03|04|05|06",
-			Blue:            "01",
-			FirstPrizeCount: 0,
-			FirstPrizeMoney: 0,
-			RewardPoolMoney: 0,
-		},
-	}, nil
+		ErrCode: errCode,
+		ErrMsg:  errMsg,
+		Lottery: data,
+	},err
 }
