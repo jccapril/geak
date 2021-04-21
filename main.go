@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"geak/api/controllers"
 	"gitee.com/jlab/biz/login"
+	"gitee.com/jlab/biz/lottery"
 	"gitee.com/jlab/biz/user"
 	"google.golang.org/grpc/metadata"
 
@@ -46,6 +48,7 @@ func main()  {
 	}
 	s := grpc.NewServer()
 	login.RegisterLoginServer(s, &server{})
+	lottery.RegisterLotteryServer(s,&controllers.LotteryController{})
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
