@@ -1,7 +1,8 @@
 package database
 
 import (
-	_ "github.com/go-mysql-driver/mysql"
+	// database driver
+	_ "github.com/go-sql-driver/mysql"
 	sql "github.com/jmoiron/sqlx"
 	"log"
 )
