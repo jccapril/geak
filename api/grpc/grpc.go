@@ -10,12 +10,14 @@ import (
 func Init(){
 	lis,err := net.Listen("tcp", ":443")
 	if err != nil {
-		log.Fatal("failed to listem: %v",err)
+		log.Fatalf("failed to listem: %v",err)
+		panic(err)
 	}
 	s := grpc.NewServer()
 	route(s)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
+		panic(err)
 	}
 }
 
