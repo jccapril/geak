@@ -1,4 +1,4 @@
-package controllers
+package grpc
 import (
 	"context"
 	"fmt"
@@ -13,11 +13,11 @@ const (
 
 var lotteryNameList = []string{"双色球","大乐透","福彩3D","排列3"}
 
-type LotteryController struct {
+type Lottery struct {
 	lottery.UnimplementedLotteryServer
 }
 
-func (c *LotteryController) GetLastLottery(ctx context.Context, in *lottery.GetLastLotteryRequest) (*lottery.GetLastLotteryResponse,error) {
+func (c *Lottery) GetLastLottery(ctx context.Context, in *lottery.GetLastLotteryRequest) (*lottery.GetLastLotteryResponse,error) {
 	var errCode int64 = 0
 	var errMsg string = ""
 	var err error
@@ -39,7 +39,7 @@ func (c *LotteryController) GetLastLottery(ctx context.Context, in *lottery.GetL
 		Type:            t,
 		Name:            name,
 		Phase:           20210421,
-		Date:            1318238129389,
+		Date:            1619062994,
 		Red:             "01|02|03|04|05|06",
 		Blue:            "01",
 		FirstPrizeCount: 8,
