@@ -26,6 +26,15 @@ func (c *Lottery) GetLastLottery(ctx context.Context, in *lottery.GetLastLottery
 		return makeResponse(errCode,errMsg,nil,err)
 	}
 	name := lotteryNameList[t]
+	var redBalls string
+	var blueBalls string
+	if t == 0 {
+		redBalls = "01|02|03|04|05|06"
+		blueBalls = "01"
+	}else if t == 1 {
+		redBalls = "01|02|03|04|05"
+		blueBalls = "01|12"
+	}
 
 	// 获取请求头
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -40,11 +49,11 @@ func (c *Lottery) GetLastLottery(ctx context.Context, in *lottery.GetLastLottery
 		Name:            name,
 		Phase:           20210421,
 		Date:            1619062994,
-		Red:             "01|02|03|04|05|06",
-		Blue:            "01",
+		Red:             redBalls,
+		Blue:            blueBalls,
 		FirstPrizeCount: 8,
 		FirstPrizeMoney: 8080808,
-		RewardPoolMoney: 88080808,
+		RewardPoolMoney: 188080808,
 	}
 
 	return makeResponse(errCode,errMsg,data,err)

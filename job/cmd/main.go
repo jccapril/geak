@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"geak/job/conf"
+	"geak/job/dao"
 	"log"
 )
 
@@ -12,4 +13,7 @@ func main(){
 		log.Fatalf("conf.Init() error(%v)", err)
 		panic(err)
 	}
+
+	dao.New(conf.Conf)
+
 }
