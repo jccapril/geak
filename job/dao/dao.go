@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"context"
 	"geak/cache"
 	"geak/database"
 	"geak/job/conf"
@@ -10,25 +11,25 @@ import (
 
 type Dao struct {
 	c 		*conf.Config
-	db		*sql.DB
-	rdb 	*redis.Client
+	DB		*sql.DB
+	RDB 	*redis.Client
 }
 
 func New(c *conf.Config) (d *Dao) {
 	d = &Dao{
 		c:  c,
-		db: database.NewMySQL(c.DB),
-		rdb: cache.NewRedis(c.Redis),
+		DB: database.NewMySQL(c.DB),
+		RDB: cache.NewRedis(c.Redis),
 	}
 	return
 }
 
 // Ping check service health.
-func (d *Dao) Ping() error {
-	return d.db.Ping()
+func (d *Dao) Ping(c context.Context) error {
+	return d.DB.PingContext(c)
 }
 
 // Close close sevice.
 func (d *Dao) Close() {
-	d.db.Close()
+	d.DB.Close()
 }

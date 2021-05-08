@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	// database driver
 	_ "github.com/go-sql-driver/mysql"
 	sql "github.com/jmoiron/sqlx"
@@ -21,7 +20,6 @@ func (c *Config) Dsn() string {
 }
 
 func NewMySQL(c *Config) (db *sql.DB){
-	fmt.Println(c.Dsn())
 	db, err := sql.Connect("mysql", c.Dsn())
 	if err != nil {
 		log.Fatalf("open mysql error(%v)", err)

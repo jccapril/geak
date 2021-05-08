@@ -2,7 +2,6 @@ package conf
 
 import (
 	"flag"
-	"fmt"
 	"geak/cache"
 	"geak/database"
 	"github.com/BurntSushi/toml"
@@ -36,8 +35,6 @@ func Init() (err error) {
 
 func local()(err error){
 	_, err = toml.DecodeFile(confPath, &Conf)
-	fmt.Println(Conf.DB)
-	fmt.Println(Conf.Redis)
 	return
 }
 
