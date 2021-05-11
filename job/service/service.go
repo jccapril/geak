@@ -25,6 +25,7 @@ func New(c *conf.Config) (s *Service) {
 	lottery := new(Lottery)
 	go lottery.Register(s)
 
+
 	return
 }
 

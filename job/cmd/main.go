@@ -14,6 +14,8 @@ var (
 	s *service.Service
 )
 
+
+
 func main(){
 	flag.Parse()
 	if err := conf.Init(); err != nil {
@@ -23,7 +25,12 @@ func main(){
 
 	service.New(conf.Conf)
 
+
 	//http.Init(conf.Conf, s)
+
+
+
+
 
 	signalHandler()
 

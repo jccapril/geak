@@ -4,68 +4,94 @@ import (
 	"encoding/json"
 	"errors"
 	"geak/job/model"
+	"github.com/robfig/cron"
+	"net/url"
+	"strconv"
 
 	"time"
 
 	//"time"
 	"fmt"
-	"github.com/robfig/cron"
 	"github.com/goinggo/mapstructure"
 	"io/ioutil"
 	"net/http"
 )
 
-const(
-	ssq_url = "http://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?name=ssq&issueCount=1"
+const (
+	ssq_host          = "http://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?"
 	last_ssq_code_key = "last_ssq_code_key"
+	duration          = 60
+	ssq_expiration	  = 4*24*3600*time.Second
 )
 
 type Lottery struct {
-	s 				*Service
-	isSSQContinue 	bool
-	lastSSQCode		string
+	s             *Service
+	lastSSQCode   string
 }
 
-func (this *Lottery)Run() {
-	if this.isSSQContinue {
-		ssq,err := this.GetLatestSSQByRemote()
-		if err != nil {
-			fmt.Println(err)
-			return
+func (this *Lottery) Run() {
+	this.runSSQ()
+}
+
+func (this *Lottery) runSSQ() {
+
+	ticker := time.NewTicker(time.Second * duration)
+	this.lastSSQCode,_ = this.s.lotteryDao.RDB.Get(last_ssq_code_key).Result()
+	go func(t *time.Ticker) {
+		for {
+			select {
+			case <-t.C:
+				ssq, err := this.GetLatestSSQByRemote()
+				if err != nil {
+					fmt.Println("error:", err)
+				} else {
+					if this.lastSSQCode != ssq.Code {
+						this.lastSSQCode = ssq.Code
+						this.s.lotteryDao.RDB.Set(last_ssq_code_key,ssq.Code,ssq_expiration)
+						fmt.Println(ssq.Code)
+						fmt.Println("数据刷新了")
+						ticker.Stop()
+					}else {
+						fmt.Println(ssq.Code)
+						fmt.Println("数据还没有刷新")
+					}
+
+				}
+			}
 		}
-		if this.lastSSQCode != ssq.Code {
-			fmt.Println(ssq)
-			this.lastSSQCode = ssq.Code
-			this.isSSQContinue = false
-			this.s.lotteryDao.RDB.Set(last_ssq_code_key,ssq.Code,time.Second * 3600 * 24 *7)
-		}
-	}else {
-		fmt.Println("已经获取到了最新的结果了")
-	}
+	}(ticker)
 
 }
 
-func (this *Lottery)Register(s *Service) {
+func (this *Lottery) Register(s *Service) {
 	this.s = s
+
 	c := cron.New()
 	defer c.Stop()
 	//spec := "0 */1 12 * * MON,WED,SAT"
-
-	c.AddFunc("0 0 16 * * ?", func() {
-		this.isSSQContinue = true
-		lastSSQCode, _ := this.s.lotteryDao.RDB.Get(last_ssq_code_key).Result()
-		this.lastSSQCode = lastSSQCode
-	})
-
-	c.AddJob("0 */1 16 * * ?",this)
+	spec := "0 0 21 * * TUE,THU,SUN"
+	c.AddJob(spec, this)
 	c.Start()
-	select{}
+	select {}
 }
 
+func (this *Lottery) GetLatestSSQByRemote() (ssq model.SSQ, err error) {
+	var ssqList []model.SSQ
+	ssqList, err = this.getSSQByRemote(1)
+	if len(ssqList) >= 1 {
+		ssq = ssqList[0]
+	} else {
+		err = errors.New("ssqlist count == 0")
+	}
+	return
+}
 
-func (this *Lottery)GetLatestSSQByRemote()(ssq model.SSQ, err error){
+func (this *Lottery) getSSQByRemote(count int) (ssqList []model.SSQ, err error) {
 	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodGet,ssq_url,nil)
+	q := url.Values{}
+	q.Set("name", "ssq")
+	q.Set("issueCount", strconv.Itoa(count))
+	req, err := http.NewRequest(http.MethodGet, ssq_host+q.Encode(), nil)
 	req.Header.Set("Referer", "http://www.cwl.gov.cn/")
 	resp, err := client.Do(req)
 	defer resp.Body.Close()
@@ -78,21 +104,14 @@ func (this *Lottery)GetLatestSSQByRemote()(ssq model.SSQ, err error){
 	if err != nil {
 		return
 	}
-	resultList,isOK := result["result"].([]interface{})
+	resultList, isOK := result["result"].([]interface{})
 	if !isOK {
-		return ssq,errors.New("format error")
+		return ssqList, errors.New("format error")
 	}
-	if len(resultList) > 0 {
-		lastResult,isOK := resultList[0].(map[string]interface{})
-		if !isOK {
-			return ssq,errors.New("format error")
-		}
-		err = mapstructure.Decode(lastResult, &ssq)
-		if err != nil {
-			return
-		}
-	}else {
-		err = errors.New("result is nil")
-	}
+	err = mapstructure.Decode(resultList, &ssqList)
 	return
+}
+
+func (this *Lottery) Get100SSQByRemote() (ssqList []model.SSQ, err error) {
+	return this.getSSQByRemote(100)
 }
