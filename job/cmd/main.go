@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"geak/job/conf"
+	"geak/libs/conf"
 	"geak/job/service"
 	"log"
 	"os"

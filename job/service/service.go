@@ -2,29 +2,38 @@ package service
 
 import (
 	"context"
-	"geak/job/conf"
 	"geak/job/dao"
-	"sync"
-
+	"geak/libs/conf"
+	"github.com/robfig/cron"
 )
 
+const (
+	//ssqCronSpec = "0 0 21 * * TUE,THU,SUN"
+	ssqCronSpec = "0 43 * * * ?"
+)
+
+
 type Service struct {
-	lotteryDao	*dao.Dao
+	dao	*dao.Dao
 	c			*conf.Config
-	waiter   	*sync.WaitGroup
+	//waiter   	*sync.WaitGroup
+	// cron
+	cron *cron.Cron
 }
 
 func New(c *conf.Config) (s *Service) {
 
 	s = &Service{
-		lotteryDao:	dao.New(c),
+		dao:	dao.New(c),
 		c:			c,
-		waiter:		new(sync.WaitGroup),
+		//waiter:		new(sync.WaitGroup),
+		cron:		cron.New(),
 	}
 
-	lottery := new(Lottery)
-	go lottery.Register(s)
-
+	s.cron.AddFunc(ssqCronSpec, func() {
+		s.FetchLastSSQByRemote()
+	})
+	s.cron.Start()
 
 	return
 }
@@ -32,15 +41,15 @@ func New(c *conf.Config) (s *Service) {
 
 // Close close service.
 func (s *Service) Close() {
-
+	s.cron.Stop()
 }
 
 // Wait wait routine unitl all close.
 func (s *Service) Wait() {
-	s.waiter.Wait()
+	//s.waiter.Wait()
 }
 
 // Ping check service health.
 func (s *Service) Ping(c context.Context) error {
-	return s.lotteryDao.Ping(c)
+	return s.dao.Ping(c)
 }

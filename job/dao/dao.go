@@ -2,9 +2,9 @@ package dao
 
 import (
 	"context"
-	"geak/cache"
-	"geak/database"
-	"geak/job/conf"
+	"geak/libs/conf"
+	"geak/libs/cache"
+	"geak/libs/database"
 	"github.com/go-redis/redis"
 	sql "github.com/jmoiron/sqlx"
 )
@@ -17,8 +17,8 @@ type Dao struct {
 
 func New(c *conf.Config) (d *Dao) {
 	d = &Dao{
-		c:  c,
-		DB: database.NewMySQL(c.DB),
+		c:   c,
+		DB:  database.NewMySQL(c.DB),
 		RDB: cache.NewRedis(c.Redis),
 	}
 	return

@@ -2,8 +2,8 @@ package conf
 
 import (
 	"flag"
-	"geak/cache"
-	"geak/database"
+	"geak/libs/cache"
+	"geak/libs/database"
 	"github.com/BurntSushi/toml"
 )
 
@@ -18,6 +18,7 @@ type Config struct {
 	DB 			*database.Config
 	Redis 		*cache.Config
 }
+
 
 
 func init() {

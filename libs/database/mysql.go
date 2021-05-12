@@ -20,6 +20,7 @@ func (c *Config) Dsn() string {
 }
 
 func NewMySQL(c *Config) (db *sql.DB){
+
 	db, err := sql.Connect("mysql", c.Dsn())
 	if err != nil {
 		log.Fatalf("open mysql error(%v)", err)
