@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	//ssqCronSpec = "0 0 21 * * TUE,THU,SUN"
-	ssqCronSpec = "0 43 * * * ?"
+	ssqCronSpec = "0 0 21 * * TUE,THU,SUN"
+	//ssqCronSpec = "0 43 * * * ?"
 )
 
 
