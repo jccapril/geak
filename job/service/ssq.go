@@ -23,6 +23,8 @@ const (
 	ssq_expiration	  = 4*24*3600*time.Second
 )
 
+var fetchCount = 0
+
 func (this *Service) FetchSSQFromDBByCode(code string) {
 	sqlStr := "SELECT `code`,`date`,`red`,`blue`,`blue2`,`sales`,`pool_money`,`first_count`," +
 		"`first_money`,`second_count`,`second_money`,`third_count`,`third_money` FROM `ssq` WHERE `code`=?"
@@ -66,6 +68,7 @@ func (this *Service) FetchLastSSQByRemote() {
 							if err != nil {
 								fmt.Println("ssq 数据更新失败：err",err)
 							}
+							fetchCount+=1
 						}else {
 							fmt.Printf("ssq数据库里没有该数据,insert")
 							sqlStr := "INSERT INTO `ssq`(`code`, `date`, `red`, `blue`," +
@@ -84,6 +87,7 @@ func (this *Service) FetchLastSSQByRemote() {
 
 							t.Stop()
 						}
+						fmt.Printf("fetch count = %d",fetchCount)
 					}
 				}
 

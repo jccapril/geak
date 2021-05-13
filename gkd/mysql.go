@@ -137,14 +137,14 @@ func initDataFrom(year int)([]*SSQ){
 				val.Blue2 = blue[1]
 			}
 		}
-		val.Sales = result[3][1]
-		val.PoolMoney = result[4][1]
+		val.Sales = strings.ReplaceAll(result[3][1],",","")
+		val.PoolMoney = strings.ReplaceAll(result[4][1],",","")
 		val.FirstCount = result[5][1]
-		val.FirstMoney = result[6][1]
+		val.FirstMoney = strings.ReplaceAll(result[6][1],",","")
 		val.SecondCount = result[7][1]
-		val.SecondMoney = result[8][1]
+		val.SecondMoney = strings.ReplaceAll(result[8][1],",","")
 		val.ThirdCount = result[9][1]
-		val.ThirdMoney = result[10][1]
+		val.ThirdMoney = strings.ReplaceAll(result[10][1],",","")
 		results = append(results, val)
 	}
 	return results
