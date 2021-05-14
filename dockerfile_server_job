@@ -12,5 +12,5 @@ COPY --from=development /go/src/geak/gkd/gkd ./
 COPY --from=development /go/src/geak/job/job ./
 COPY --from=development /go/src/geak/conf.toml ./
 COPY --from=development /go/src/geak/gkd/resources ./resources
-EXPOSE 8686
+#EXPOSE 8686
 ENTRYPOINT ./gkd && ./job
