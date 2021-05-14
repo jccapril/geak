@@ -1,0 +1,12 @@
+FROM golang:alpine AS development
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
+WORKDIR /go/src/geak
+COPY app/ ./
+RUN go env && go build -o app .
+
+FROM alpine:latest AS production
+WORKDIR /go/src/geak
+COPY --from=development /go/src/geak/app ./
+EXPOSE 8888
+ENTRYPOINT ./app

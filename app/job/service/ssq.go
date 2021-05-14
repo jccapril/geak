@@ -57,11 +57,16 @@ func (this *Service) FetchLastSSQByRemote() {
 						ssq := ssqlist[0]
 						isExist := this.FetchSSQCountFromDBByCode(ssq.Code)
 						ssq.TransPrizegradesFmt()
+						if len(ssq.Date) > 10 {
+							ssq.Date = Substr(ssq.Date,0,10)
+						}
+
 						if isExist {
 							fmt.Printf("ssq数据库里已经有了,update")
 							sqlStr := "UPDATE `ssq` SET `date`=?,`red`=?,`blue`=?,`blue2`=?," +
 								"`sales`=?,`pool_money`=?,`first_count`=?,`first_money`=?," +
 								"`second_count`=?,`second_money`=?,`third_count`=?,`third_money`=? WHERE `code`=?"
+
 							_,err := this.dao.DB.Exec(sqlStr,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
 								ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
 								ssq.ThirdCount,ssq.ThirdMoney,ssq.Code)
@@ -122,4 +127,31 @@ func (this *Service) fetchSSQByRemote(count int) (ssqList []model.SSQ, err error
 	}
 	err = mapstructure.Decode(resultList, &ssqList)
 	return
+}
+
+
+func Substr(str string, start, length int) string {
+	if length == 0 {
+		return ""
+	}
+	rune_str := []rune(str)
+	len_str := len(rune_str)
+
+	if start < 0 {
+		start = len_str + start
+	}
+	if start > len_str {
+		start = len_str
+	}
+	end := start + length
+	if end > len_str {
+		end = len_str
+	}
+	if length < 0 {
+		end = len_str + length
+	}
+	if start > end {
+		start, end = end, start
+	}
+	return string(rune_str[start:end])
 }
