@@ -17,12 +17,16 @@ var (
 type Config struct {
 	DB 			*database.Config
 	Redis 		*cache.Config
+	App			*App
+}
+
+type App struct {
+	Resources string
 }
 
 
-
 func init() {
-	flag.StringVar(&confPath, "conf", "", "default config path")
+	flag.StringVar(&confPath, "conf", "./conf.toml", "default config path")
 }
 
 // Init init conf.

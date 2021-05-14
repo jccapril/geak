@@ -20,6 +20,7 @@ const (
 	ssqElementExpr = "<td>([\\s\\S]*?)</td>"
 	ssqRedBallExpr = "<span class=\"red\">([\\s\\S]*?)</span>"
 	ssqBlueBallExpr = "<span class=\"blue\">([\\s\\S]*?)</span>"
+
 )
 
 
@@ -66,7 +67,8 @@ func insertYearData(data []*SSQ){
 	//format all vals at once
 	res, err := stmt.Exec(vals...)
 	if err != nil {
-		log.Fatalf("exec 失败: %v\n",err)
+		fmt.Printf("exec 失败: %v\n",err)
+		return
 	}
 	count, err := res.RowsAffected()
 	if err != nil {
@@ -100,7 +102,7 @@ func createSSQTable()(err error) {
 
 
 func initDataFrom(year int)([]*SSQ){
-	content, err := ioutil.ReadFile(fmt.Sprintf("../resources/ssq_history/%d.html",year)) // just pass the file name
+	content, err := ioutil.ReadFile(fmt.Sprintf("%s/ssq_history/%d.html",conf.Conf.App.Resources,year)) // just pass the file name
 	if err != nil {
 		fmt.Print(err)
 	}

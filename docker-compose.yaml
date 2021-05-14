@@ -12,11 +12,11 @@ services:
   server:
     build:
       context: ./
-      dockerfile: ./dockerfile_server
-    container_name: geak-server
+      dockerfile: ./dockerfile_server_job
+    container_name: geak-server-job
     restart: always
     ports:
-      - '18888:8888'
+      - '18686:8686'
     depends_on:
       - mysql
       - redis
