@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"geak/libs/conf"
 	"geak/libs/database"
+	"geak/libs/log"
 	sql "github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
 	"io/ioutil"
-	"log"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -31,11 +31,11 @@ func Init(config *conf.Config){
 func InitData(){
 	err := createSSQTable()
 	if err != nil {
-		log.Fatalf("创建 ssq 表 失败：%v\n",err)
+		log.Fatal("创建 ssq 表 失败",zap.Error(err))
 	}
 
 	for year := 2003; year <= 2021; year++ {
-		fmt.Printf("开始导入%d年数据\n",year)
+		log.Info(fmt.Sprintf("开始导入%d年数据\n",year))
 		insertYearData(initDataFrom(year))
 	}
 }
@@ -61,20 +61,20 @@ func insertYearData(data []*SSQ){
 	//prepare the statement
 	stmt, err := db.Prepare(sqlStr)
 	if err != nil {
-		log.Fatalf("prepare 失败: %v\n",err)
+		log.Fatal("ls",zap.Error(err))
 	}
 	defer stmt.Close()
 	//format all vals at once
 	res, err := stmt.Exec(vals...)
 	if err != nil {
-		fmt.Printf("exec 失败: %v\n",err)
+		log.Error("sql exec 失败",zap.Error(err))
 		return
 	}
 	count, err := res.RowsAffected()
 	if err != nil {
-		log.Fatalf("rows 失败: %v\n",err)
+		log.Error("获取影响条目数量失败",zap.Error(err))
 	}
-	fmt.Printf("当年数据倒入成功,一共导入%d条数据\n",count)
+	log.Info(fmt.Sprintf("当年数据倒入成功,一共导入%d条数据\n",count))
 
 }
 
@@ -105,6 +105,7 @@ func initDataFrom(year int)([]*SSQ){
 	content, err := ioutil.ReadFile(fmt.Sprintf("%s/ssq_history/%d.html",conf.Conf.App.Resources,year)) // just pass the file name
 	if err != nil {
 		fmt.Print(err)
+
 	}
 	input := string(content)
 	body := regexp.MustCompile(bodyExpr).FindAllStringSubmatch(input,1)[0][1]
@@ -119,9 +120,10 @@ func initDataFrom(year int)([]*SSQ){
 		val.Code = result[0][1]
 
 		val.Date = result[1][1]
-		if strings.Split(val.Date,"-")[0] != strconv.Itoa(year) {
-			log.Fatalf("year:%d 有问题",year)
-		}
+		//if strings.Split(val.Date,"-")[0] != strconv.Itoa(year) {
+		//	log.Fatalf("year:%d 有问题",year)
+		//	log.Fatal(f)
+		//}
 		ballString := result[2][1]
 		redList := regexp.MustCompile(ssqRedBallExpr).FindAllStringSubmatch(ballString,6)
 		var reds []string

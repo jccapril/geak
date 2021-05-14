@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"geak/job/model"
 	"github.com/goinggo/mapstructure"
+	"go.uber.org/zap"
 	"io/ioutil"
-	"log"
+	"geak/libs/log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -38,7 +39,7 @@ func (this *Service) FetchSSQCountFromDBByCode(code string)(bool) {
 	var num int
 	err := this.dao.DB.Get(&num,sqlStr,code)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(sqlStr,zap.Error(err))
 	}
 	return num > 0
 }
@@ -51,7 +52,7 @@ func (this *Service) FetchLastSSQByRemote() {
 			case <-t.C:
 				ssqlist, err := this.fetchSSQByRemote(1)
 				if err != nil {
-					fmt.Printf("双色球接口出问题了: %v\n", err)
+					log.Error("双色球接口出问题",zap.Error(err))
 				}else {
 					if len(ssqlist) > 0 {
 						ssq := ssqlist[0]
@@ -62,7 +63,7 @@ func (this *Service) FetchLastSSQByRemote() {
 						}
 
 						if isExist {
-							fmt.Printf("ssq数据库里已经有了,update")
+							log.Debug("ssq数据库里已经有了,update")
 							sqlStr := "UPDATE `ssq` SET `date`=?,`red`=?,`blue`=?,`blue2`=?," +
 								"`sales`=?,`pool_money`=?,`first_count`=?,`first_money`=?," +
 								"`second_count`=?,`second_money`=?,`third_count`=?,`third_money`=? WHERE `code`=?"
@@ -71,11 +72,11 @@ func (this *Service) FetchLastSSQByRemote() {
 								ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
 								ssq.ThirdCount,ssq.ThirdMoney,ssq.Code)
 							if err != nil {
-								fmt.Println("ssq 数据更新失败：err",err)
+								log.Error(sqlStr,zap.Error(err))
 							}
 							fetchCount+=1
 						}else {
-							fmt.Printf("ssq数据库里没有该数据,insert")
+							log.Debug("ssq数据库里没有该数据,insert")
 							sqlStr := "INSERT INTO `ssq`(`code`, `date`, `red`, `blue`," +
 								"`blue2`, `sales`, `pool_money`," +
 								"`first_count`, `first_money`," +
@@ -85,14 +86,14 @@ func (this *Service) FetchLastSSQByRemote() {
 								ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
 								ssq.ThirdCount,ssq.ThirdMoney)
 							if err != nil {
-								fmt.Println("ssq 数据插入失败：err",err)
+								log.Error(sqlStr,zap.Error(err))
 							}else {
 								this.Push()
 							}
 
 							t.Stop()
 						}
-						fmt.Printf("fetch count = %d",fetchCount)
+						log.Debug(fmt.Sprintf("fetch count = %d",fetchCount))
 					}
 				}
 

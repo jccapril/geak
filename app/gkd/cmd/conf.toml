@@ -6,3 +6,11 @@
     config = "charset=utf8&parseTime=true&loc=Local"
 [app]
     resources = "../resources"
+[Log]
+    level = "debug"
+    prefix = "[geak]"
+    dir = "log"
+    format = "json"
+    link-name = "latest_log"
+    show-line = true
+    log-in-console = true

@@ -8,4 +8,12 @@
     db = 0
     addr = "127.0.0.1:16379"
     password = ""
+[Log]
+    level = "debug"
+    prefix = "[geak]"
+    dir = "log"
+    format = "json"
+    link-name = "latest_log"
+    show-line = true
+    log-in-console = true
 

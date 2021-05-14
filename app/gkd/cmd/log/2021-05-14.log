@@ -1,0 +1,38 @@
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:58.665","caller":"gkd/mysql.go:38","msg":"开始导入2003年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:58.716","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2003001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:58.716","caller":"gkd/mysql.go:38","msg":"开始导入2004年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:58.774","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2004001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:58.774","caller":"gkd/mysql.go:38","msg":"开始导入2005年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:58.843","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2005001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:58.843","caller":"gkd/mysql.go:38","msg":"开始导入2006年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:58.897","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2006001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:58.897","caller":"gkd/mysql.go:38","msg":"开始导入2007年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:58.954","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2007001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:58.954","caller":"gkd/mysql.go:38","msg":"开始导入2008年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.020","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2008001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.020","caller":"gkd/mysql.go:38","msg":"开始导入2009年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.101","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2009001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.102","caller":"gkd/mysql.go:38","msg":"开始导入2010年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.169","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2010001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.169","caller":"gkd/mysql.go:38","msg":"开始导入2011年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.224","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2011001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.224","caller":"gkd/mysql.go:38","msg":"开始导入2012年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.283","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2012001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.283","caller":"gkd/mysql.go:38","msg":"开始导入2013年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.357","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2013001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.357","caller":"gkd/mysql.go:38","msg":"开始导入2014年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.419","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2014001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.419","caller":"gkd/mysql.go:38","msg":"开始导入2015年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.477","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2015001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.477","caller":"gkd/mysql.go:38","msg":"开始导入2016年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.528","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2016001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.528","caller":"gkd/mysql.go:38","msg":"开始导入2017年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.582","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2017001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.582","caller":"gkd/mysql.go:38","msg":"开始导入2018年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.632","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2018001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.632","caller":"gkd/mysql.go:38","msg":"开始导入2019年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.689","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2019001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.689","caller":"gkd/mysql.go:38","msg":"开始导入2020年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.758","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2020001' for key 'code'"}
+{"level":"INFO","time":"[geak]2021/05/14 - 17:05:59.758","caller":"gkd/mysql.go:38","msg":"开始导入2021年数据\n"}
+{"level":"ERROR","time":"[geak]2021/05/14 - 17:05:59.792","caller":"gkd/mysql.go:70","msg":"sql exec 失败","error":"Error 1062: Duplicate entry '2021001' for key 'code'"}

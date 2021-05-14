@@ -10,3 +10,11 @@
     password = ""
 [app]
     resources = "./resources"
+[Log]
+    level = "info"
+    prefix = "[geak]"
+    dir = "log"
+    format = "json"
+    link-name = "latest_log"
+    show-line = false
+    log-in-console = true

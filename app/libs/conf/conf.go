@@ -4,6 +4,7 @@ import (
 	"flag"
 	"geak/libs/cache"
 	"geak/libs/database"
+	"geak/libs/log"
 	"github.com/BurntSushi/toml"
 )
 
@@ -18,6 +19,7 @@ type Config struct {
 	DB 			*database.Config
 	Redis 		*cache.Config
 	App			*App
+	Log			*log.Config
 }
 
 type App struct {
