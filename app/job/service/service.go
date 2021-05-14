@@ -5,6 +5,7 @@ import (
 	"geak/job/dao"
 	"geak/libs/conf"
 	"github.com/robfig/cron"
+	"sync"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 type Service struct {
 	dao	*dao.Dao
 	c			*conf.Config
-	//waiter   	*sync.WaitGroup
+	waiter   	*sync.WaitGroup
 	// cron
 	cron *cron.Cron
 }
@@ -26,10 +27,10 @@ func New(c *conf.Config) (s *Service) {
 	s = &Service{
 		dao:	dao.New(c),
 		c:			c,
-		//waiter:		new(sync.WaitGroup),
+		waiter:		new(sync.WaitGroup),
 		cron:		cron.New(),
 	}
-
+	s.waiter.Add(1)
 	s.cron.AddFunc(ssqCronSpec, func() {
 		s.FetchLastSSQByRemote()
 	})
@@ -41,12 +42,9 @@ func New(c *conf.Config) (s *Service) {
 
 // Close close service.
 func (s *Service) Close() {
+	defer s.waiter.Wait()
 	s.cron.Stop()
-}
-
-// Wait wait routine unitl all close.
-func (s *Service) Wait() {
-	//s.waiter.Wait()
+	return
 }
 
 // Ping check service health.

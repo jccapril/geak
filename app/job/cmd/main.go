@@ -46,7 +46,6 @@ func signalHandler() {
 		switch si {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
 			s.Close()
-			s.Wait()
 			return
 		case syscall.SIGHUP:
 		default:

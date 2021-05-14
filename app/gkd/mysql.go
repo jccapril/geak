@@ -38,7 +38,6 @@ func InitData(){
 		log.Fatal("创建 ssq 表 失败",zap.Error(err))
 	}
 	ch := make(chan []*SSQ)
-
 	procData(ch)
 	go consumeData(ch)
 
