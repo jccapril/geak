@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 var db *sql.DB
@@ -28,15 +29,34 @@ func Init(config *conf.Config){
 	 db = database.NewMySQL(config.DB)
 }
 
+//var ch = make(chan []*SSQ)
+var wg = sync.WaitGroup{}
+
 func InitData(){
 	err := createSSQTable()
 	if err != nil {
 		log.Fatal("创建 ssq 表 失败",zap.Error(err))
 	}
+	ch := make(chan []*SSQ)
 
+	procData(ch)
+	go consumeData(ch)
+
+	wg.Wait()
+}
+
+func procData(ch chan<- []*SSQ) {
 	for year := 2003; year <= 2021; year++ {
-		log.Info(fmt.Sprintf("开始导入%d年数据\n",year))
-		insertYearData(initDataFrom(year))
+		wg.Add(1)
+		go initDataFrom(year,ch)
+	}
+}
+
+func consumeData(ch <-chan []*SSQ){
+	for {
+		result := <-ch
+		insertYearData(result)
+		wg.Done()
 	}
 }
 
@@ -74,7 +94,7 @@ func insertYearData(data []*SSQ){
 	if err != nil {
 		log.Error("获取影响条目数量失败",zap.Error(err))
 	}
-	log.Info(fmt.Sprintf("当年数据倒入成功,一共导入%d条数据\n",count))
+	log.Info(fmt.Sprintf("数据导入成功,一共导入%d条数据\n",count))
 
 }
 
@@ -101,7 +121,8 @@ func createSSQTable()(err error) {
 }
 
 
-func initDataFrom(year int)([]*SSQ){
+func initDataFrom(year int,ch chan<- []*SSQ){
+	log.Info(fmt.Sprintf("开始导入%d年数据\n",year))
 	content, err := ioutil.ReadFile(fmt.Sprintf("%s/ssq_history/%d.html",conf.Conf.App.Resources,year)) // just pass the file name
 	if err != nil {
 		fmt.Print(err)
@@ -151,6 +172,5 @@ func initDataFrom(year int)([]*SSQ){
 		val.ThirdMoney = strings.ReplaceAll(result[10][1],",","")
 		results = append(results, val)
 	}
-	return results
-
+	ch<-results
 }
