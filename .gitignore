@@ -6,6 +6,8 @@
 
 .idea
 
+.log
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -25,5 +27,9 @@
 ### Go Patch ###
 /vendor/
 /Godeps/
+
+/log/
+
+latest_log
 
 # End
