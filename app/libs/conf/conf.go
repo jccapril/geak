@@ -23,6 +23,7 @@ type Config struct {
 }
 
 type App struct {
+	Bid		  string
 	Resources string
 }
 

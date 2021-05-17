@@ -1,15 +1,15 @@
 package grpc
+
 import (
 	"context"
-	"fmt"
+	"geak/libs/conf"
+	"geak/libs/ecode"
+	"geak/libs/log"
+	"geak/tools/strings"
 	"gitee.com/jlab/biz/lottery"
-	"gitee.com/jlab/biz/m"
 	"google.golang.org/grpc/metadata"
 )
 
-const (
-
-)
 
 var lotteryNameList = []string{"双色球","大乐透","福彩3D","排列3"}
 
@@ -18,51 +18,43 @@ type Lottery struct {
 }
 
 func (c *Lottery) GetLastLottery(ctx context.Context, in *lottery.GetLastLotteryRequest) (*lottery.GetLastLotteryResponse,error) {
-	var errCode int64 = 0
-	var errMsg string = ""
+
 	var err error
-	t := in.GetType()
-	if t < 0 || t > 3 {
-		return makeResponse(errCode,errMsg,nil,err)
-	}
-	name := lotteryNameList[t]
-	var redBalls string
-	var blueBalls string
-	if t == 0 {
-		redBalls = "01|02|03|04|05|06"
-		blueBalls = "01"
-	}else if t == 1 {
-		redBalls = "01|02|03|04|05"
-		blueBalls = "01|12"
-	}
-
 	// 获取请求头
-	md, ok := metadata.FromIncomingContext(ctx)
+	header, ok := metadata.FromIncomingContext(ctx)
+	if !ok  {
+		return makeErrorResponse(ecode.BidError,""), nil
+	}
+	bid,ok := header["x-jeak-bid"]
 	if !ok {
-		fmt.Printf("get metadata error")
-	}
-	fmt.Println(md["x-jeak-bid"])
-
-	data := &m.Lottery{
-		LotteryID:       1001,
-		Type:            t,
-		Name:            name,
-		Phase:           20210421,
-		Date:            1619062994,
-		Red:             redBalls,
-		Blue:            blueBalls,
-		FirstPrizeCount: 8,
-		FirstPrizeMoney: 8080808,
-		RewardPoolMoney: 188080808,
+		return makeErrorResponse(ecode.BidError,""), nil
 	}
 
-	return makeResponse(errCode,errMsg,data,err)
+	if !strings.IsContain(bid,conf.Conf.App.Bid) {
+		return makeErrorResponse(ecode.BidError,""), nil
+	}
+
+	t := in.GetType()
+	if t == 1 {
+		ssq,err := lotterySrv.GetLastestSSQ()
+		return &lottery.GetLastLotteryResponse{
+			Lottery: ssq,
+		}, err
+	} else if t ==2 {
+		log.Info("大乐透暂不支持")
+		return makeErrorResponse(ecode.DLTUnsuppportError,"大乐透暂不支持"),err
+	}
+	return makeErrorResponse(ecode.LotteryTypeError,""),nil
 }
 
-func makeResponse(errCode int64, errMsg string,data *m.Lottery,err error)(*lottery.GetLastLotteryResponse,error) {
+
+func makeErrorResponse(errCode int, errMsg string)(*lottery.GetLastLotteryResponse) {
 	return &lottery.GetLastLotteryResponse{
-		ErrCode: errCode,
+		ErrCode: int64(errCode),
 		ErrMsg:  errMsg,
-		Lottery: data,
-	},err
+		Lottery: nil,
+	}
 }
+
+
+
