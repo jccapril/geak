@@ -5,9 +5,11 @@ import (
 	"geak/libs/conf"
 	"geak/job/service"
 	"geak/libs/log"
+	"go.uber.org/zap"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 var (
@@ -39,13 +41,20 @@ func main(){
 
 
 func signalHandler() {
-	ch := make(chan os.Signal, 1)
+	var (
+		err error
+		ch  = make(chan os.Signal, 1)
+	)
 	signal.Notify(ch, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
 	for {
 		si := <-ch
 		switch si {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-			s.Close()
+			log.Info("get a signal %s, stop the consume process", zap.Any("sigal",si.String()))
+			if err = s.Close(); err != nil {
+				log.Error("srv close consumer error(%v)", zap.Error(err))
+			}
+			time.Sleep(5 * time.Second)
 			return
 		case syscall.SIGHUP:
 		default:

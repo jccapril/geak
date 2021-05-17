@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-//this.s.lotteryDao.RDB.Set(last_ssq_code_key,ssq.Code,ssq_expiration)
-//this.lastSSQCode,_ = this.s.lotteryDao.RDB.Get(last_ssq_code_key).Result()
 const (
 	ssq_host          = "http://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?"
 	last_ssq_code_key = "last_ssq_code_key"
@@ -81,6 +79,7 @@ func (this *Service)GetLastestSSQByRemote()(ssq *model.SSQ,err error){
 	ssq = &ssqlist[0]
 	this.dao.RDB.Set(last_ssq_code_key,ssq.Code,ssq_expiration)
 	ssq.TransFormat()
+	//this.waiter.Done()
 	return
 }
 
@@ -131,7 +130,6 @@ func (this *Service)StartSSQJob(){
 			}
 		}
 	}(ticker)
-
 }
 
 

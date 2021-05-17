@@ -25,3 +25,9 @@
 {"level":"DEBUG","time":"[geak]2021/05/17 - 10:43:00.162","caller":"service/service.go:42","msg":"ssq","ssq":true}
 {"level":"DEBUG","time":"[geak]2021/05/17 - 10:43:00.163","caller":"service/service.go:43","msg":"ssq","ssq":{"name":"双色球","code":"2021053","date":"2021-05-16(日)","week":"日","red":"07,10,14,16,24,33","blue":"16","blue2":"","sales":"398009388","poolMoney":"473183576","content":"辽宁1注,山东1注,陕西1注,共3注。","prizegrades":[{"type":1,"typenum":"3","typemoney":"10000000"},{"type":2,"typenum":"84","typemoney":"355480"},{"type":3,"typenum":"1096","typemoney":"3000"},{"type":4,"typenum":"60756","typemoney":"200"},{"type":5,"typenum":"1230629","typemoney":"10"},{"type":6,"typenum":"9567511","typemoney":"5"},{"type":7,"typenum":"","typemoney":""}],"FirstCount":"3","FirstMoney":"10000000","SecondCount":"84","SecondMoney":"355480","ThirdCount":"1096","ThirdMoney":"3000"}}
 {"level":"INFO","time":"[geak]2021/05/17 - 11:02:00.347","caller":"service/ssq.go:127","msg":"ssq job","fetch count":0}
+{"level":"INFO","time":"[geak]2021/05/17 - 11:55:19.015","caller":"cmd/main.go:53","msg":"get a signal %s, stop the consume process","sigal":"interrupt"}
+{"level":"INFO","time":"[geak]2021/05/17 - 11:55:58.829","caller":"cmd/main.go:53","msg":"get a signal %s, stop the consume process","sigal":"interrupt"}
+{"level":"INFO","time":"[geak]2021/05/17 - 11:56:32.569","caller":"cmd/main.go:53","msg":"get a signal %s, stop the consume process","sigal":"interrupt"}
+{"level":"INFO","time":"[geak]2021/05/17 - 11:56:50.810","caller":"cmd/main.go:53","msg":"get a signal %s, stop the consume process","sigal":"interrupt"}
+{"level":"INFO","time":"[geak]2021/05/17 - 11:58:36.149","caller":"cmd/main.go:53","msg":"get a signal %s, stop the consume process","sigal":"interrupt"}
+{"level":"INFO","time":"[geak]2021/05/17 - 11:58:44.155","caller":"cmd/main.go:53","msg":"get a signal %s, stop the consume process","sigal":"interrupt"}

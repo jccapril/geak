@@ -30,17 +30,18 @@ func New(c *conf.Config) (s *Service) {
 		waiter:		new(sync.WaitGroup),
 		cron:		cron.New(),
 	}
-	s.cron.AddFunc(ssqCronSpec, func() {
-		s.StartSSQJob()
-	})
-	s.cron.Start()
 
-	return
+	s.cron.AddFunc(ssqCronSpec,s.StartSSQJob)
+	s.cron.Start()
+	//s.waiter.Add(1)
+	s.GetLastestSSQByRemote()
+
+	return s
 }
 
 
 // Close close service.
-func (s *Service) Close() {
+func (s *Service) Close() (err error) {
 	defer s.waiter.Wait()
 	s.cron.Stop()
 	return
