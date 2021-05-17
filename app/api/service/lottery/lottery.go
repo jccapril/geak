@@ -58,7 +58,7 @@ func (this *Service)GetLastestSSQ()(ssq *m.Lottery,err error) {
 			log.Error("rows.Scan error",zap.Error(err))
 			continue
 		}
-		ssq :=&m.Lottery{Name:"双色球",Type:1}
+		ssq :=&m.Lottery{Name:"双色球",Type:0}
 		ssq.Code = code
 		ssq.Date = date
 		ssq.Red = strings.Split(red,",")

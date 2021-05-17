@@ -8,8 +8,25 @@ networks:
         - subnet: '178.9.0.0/16'
 
 services:
-
   server:
+    build:
+      context: ./
+      dockerfile: ./dockerfile_server_api
+    container_name: geak-server-api
+    restart: always
+    ports:
+      - '1443:443'
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql
+      - redis
+    networks:
+      network:
+        ipv4_address: 178.9.0.11
+
+  job:
     build:
       context: ./
       dockerfile: ./dockerfile_server_job
@@ -26,6 +43,7 @@ services:
     networks:
       network:
         ipv4_address: 178.9.0.12
+
 
   mysql:
     image: mysql:5.6

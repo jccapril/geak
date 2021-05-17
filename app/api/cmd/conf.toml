@@ -10,7 +10,7 @@
     password = ""
 [app]
     resources = "./resources"
-    bid = "com.jeak.app"
+    bid = "com.upsky.app"
 [Log]
     level = "debug"
     prefix = "[geak]"

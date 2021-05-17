@@ -7,6 +7,7 @@ import (
 	"geak/libs/log"
 	"geak/tools/strings"
 	"gitee.com/jlab/biz/lottery"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -35,12 +36,13 @@ func (c *Lottery) GetLastLottery(ctx context.Context, in *lottery.GetLastLottery
 	}
 
 	t := in.GetType()
-	if t == 1 {
+	if t == 0 {
 		ssq,err := lotterySrv.GetLastestSSQ()
+		log.Info("reponse",zap.Any("ssq",ssq))
 		return &lottery.GetLastLotteryResponse{
 			Lottery: ssq,
 		}, err
-	} else if t ==2 {
+	} else if t == 1 {
 		log.Info("大乐透暂不支持")
 		return makeErrorResponse(ecode.DLTUnsuppportError,"大乐透暂不支持"),err
 	}
@@ -49,6 +51,7 @@ func (c *Lottery) GetLastLottery(ctx context.Context, in *lottery.GetLastLottery
 
 
 func makeErrorResponse(errCode int, errMsg string)(*lottery.GetLastLotteryResponse) {
+	log.Info("err",zap.Int("code",errCode))
 	return &lottery.GetLastLotteryResponse{
 		ErrCode: int64(errCode),
 		ErrMsg:  errMsg,
