@@ -37,7 +37,14 @@ type Prizegrade struct {
 	Typemoney string	`json:"typemoney"`
 }
 
-func (this *SSQ)TransPrizegradesFmt(){
+func (this *SSQ)TransFormat(){
+	this.transPrizegradesFmt()
+	if len(this.Date) > 10 {
+		this.Date = substr(this.Date,0,10)
+	}
+}
+
+func (this *SSQ)transPrizegradesFmt(){
 	if len(this.Prizegrades) > 0 {
 		this.FirstCount = this.Prizegrades[0].Typenum
 		this.FirstMoney = this.Prizegrades[0].Typemoney
@@ -46,4 +53,30 @@ func (this *SSQ)TransPrizegradesFmt(){
 		this.ThirdCount = this.Prizegrades[2].Typenum
 		this.ThirdMoney = this.Prizegrades[2].Typemoney
 	}
+}
+
+func substr(str string, start, length int) string {
+	if length == 0 {
+		return ""
+	}
+	rune_str := []rune(str)
+	len_str := len(rune_str)
+
+	if start < 0 {
+		start = len_str + start
+	}
+	if start > len_str {
+		start = len_str
+	}
+	end := start + length
+	if end > len_str {
+		end = len_str
+	}
+	if length < 0 {
+		end = len_str + length
+	}
+	if start > end {
+		start, end = end, start
+	}
+	return string(rune_str[start:end])
 }

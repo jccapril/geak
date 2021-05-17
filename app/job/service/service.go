@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	ssqCronSpec = "0 0 21 * * TUE,THU,SUN"
-	//ssqCronSpec = "0 10 * * * ?"
+	//ssqCronSpec = "0 0 21 * * TUE,THU,SUN"
+	ssqCronSpec = "0 1 * * * ?"
 )
 
 
@@ -30,9 +30,8 @@ func New(c *conf.Config) (s *Service) {
 		waiter:		new(sync.WaitGroup),
 		cron:		cron.New(),
 	}
-	s.waiter.Add(1)
 	s.cron.AddFunc(ssqCronSpec, func() {
-		s.FetchLastSSQByRemote()
+		s.StartSSQJob()
 	})
 	s.cron.Start()
 

@@ -3,12 +3,11 @@ package service
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"geak/job/model"
+	"geak/libs/log"
 	"github.com/goinggo/mapstructure"
 	"go.uber.org/zap"
 	"io/ioutil"
-	"geak/libs/log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -21,90 +20,122 @@ const (
 	ssq_host          = "http://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?"
 	last_ssq_code_key = "last_ssq_code_key"
 	duration          = 60
-	ssq_expiration	  = 4*24*3600*time.Second
+	ssq_expiration	  = 7*24*3600*time.Second
 )
 
 var fetchCount = 0
 
-func (this *Service) FetchSSQFromDBByCode(code string) {
+func (this *Service)GetSSQFromDBByCode(code string)(ssq *model.SSQ,err error) {
 	sqlStr := "SELECT `code`,`date`,`red`,`blue`,`blue2`,`sales`,`pool_money`,`first_count`," +
 		"`first_money`,`second_count`,`second_money`,`third_count`,`third_money` FROM `ssq` WHERE `code`=?"
-	ssq := new(model.SSQ)
-	ssq.Name = "双色球"
-	this.dao.DB.Get(ssq,sqlStr,"2021051")
+	ssq = new(model.SSQ)
+	err = this.dao.DB.Get(ssq,sqlStr,code)
+	return
 }
 
-func (this *Service) FetchSSQCountFromDBByCode(code string)(bool) {
+func (this *Service)GetSSQCountFromDBByCode(code string)(num int) {
 	sqlStr := "SELECT COUNT(*) FROM `ssq` WHERE `code`=?"
-	var num int
 	err := this.dao.DB.Get(&num,sqlStr,code)
 	if err != nil {
 		log.Error(sqlStr,zap.Error(err))
 	}
-	return num > 0
+	return
 }
 
-func (this *Service) FetchLastSSQByRemote() {
+func (this *Service)GetLastestSSQ()(ssq *model.SSQ,isRemote bool) {
+
+	lastestSSQCode,err := this.dao.RDB.Get(last_ssq_code_key).Result()
+	if err != nil || len(lastestSSQCode) == 0 {
+		// remote
+		log.Error("redis get failure",zap.Error(err))
+		ssq,err = this.GetLastestSSQByRemote()
+		if err != nil {
+			log.Error("ssq remote api",zap.Error(err))
+		}
+		isRemote = true
+		return
+	}
+	// local
+	ssq,err = this.GetSSQFromDBByCode(lastestSSQCode)
+	if err != nil {
+		log.Error("db query failure",zap.Error(err))
+		ssq,err = this.GetLastestSSQByRemote()
+		if err != nil {
+			log.Error("ssq remote api",zap.Error(err))
+		}
+		isRemote = true
+		return
+	}
+	return
+}
+
+func (this *Service)GetLastestSSQByRemote()(ssq *model.SSQ,err error){
+	var ssqlist []model.SSQ
+	ssqlist, err = this.fetchSSQByRemote(1)
+	if err != nil {
+		return
+	}
+	if len(ssqlist) == 0 {
+		return nil,errors.New("query lastest ssq failure")
+	}
+	ssq = &ssqlist[0]
+	this.dao.RDB.Set(last_ssq_code_key,ssq.Code,ssq_expiration)
+	ssq.TransFormat()
+	return
+}
+
+func (this *Service)StartSSQJob(){
 	ticker := time.NewTicker(time.Second * duration)
 	go func(t *time.Ticker) {
 		for {
 			select {
 			case <-t.C:
-				ssqlist, err := this.fetchSSQByRemote(1)
+				ssq,err := this.GetLastestSSQByRemote()
 				if err != nil {
-					log.Error("双色球接口出问题",zap.Error(err))
+					log.Error("ssq remote",zap.Error(err))
 				}else {
-					if len(ssqlist) > 0 {
-						ssq := ssqlist[0]
-						isExist := this.FetchSSQCountFromDBByCode(ssq.Code)
-						ssq.TransPrizegradesFmt()
-						if len(ssq.Date) > 10 {
-							ssq.Date = Substr(ssq.Date,0,10)
+					isExist := this.GetSSQCountFromDBByCode(ssq.Code) > 0
+					if isExist {
+						sqlStr := "UPDATE `ssq` SET `date`=?,`red`=?,`blue`=?,`blue2`=?," +
+							"`sales`=?,`pool_money`=?,`first_count`=?,`first_money`=?," +
+							"`second_count`=?,`second_money`=?,`third_count`=?,`third_money`=? WHERE `code`=?"
+
+						_,err := this.dao.DB.Exec(sqlStr,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
+							ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
+							ssq.ThirdCount,ssq.ThirdMoney,ssq.Code)
+						if err != nil {
+							log.Error(sqlStr,zap.Error(err))
 						}
 
-						if isExist {
-							log.Debug("ssq数据库里已经有了,update")
-							sqlStr := "UPDATE `ssq` SET `date`=?,`red`=?,`blue`=?,`blue2`=?," +
-								"`sales`=?,`pool_money`=?,`first_count`=?,`first_money`=?," +
-								"`second_count`=?,`second_money`=?,`third_count`=?,`third_money`=? WHERE `code`=?"
-
-							_,err := this.dao.DB.Exec(sqlStr,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
-								ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
-								ssq.ThirdCount,ssq.ThirdMoney,ssq.Code)
-							if err != nil {
-								log.Error(sqlStr,zap.Error(err))
-							}
-							fetchCount+=1
+					}else {
+						sqlStr := "INSERT INTO `ssq`(`code`, `date`, `red`, `blue`," +
+							"`blue2`, `sales`, `pool_money`," +
+							"`first_count`, `first_money`," +
+							"`second_count`, `second_money`," +
+							"`third_count`, `third_money`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+						_,err := this.dao.DB.Exec(sqlStr,ssq.Code,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
+							ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
+							ssq.ThirdCount,ssq.ThirdMoney)
+						if err != nil {
+							log.Error(sqlStr,zap.Error(err))
 						}else {
-							log.Debug("ssq数据库里没有该数据,insert")
-							sqlStr := "INSERT INTO `ssq`(`code`, `date`, `red`, `blue`," +
-								"`blue2`, `sales`, `pool_money`," +
-								"`first_count`, `first_money`," +
-								"`second_count`, `second_money`," +
-								"`third_count`, `third_money`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-							_,err := this.dao.DB.Exec(sqlStr,ssq.Code,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
-								ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
-								ssq.ThirdCount,ssq.ThirdMoney)
-							if err != nil {
-								log.Error(sqlStr,zap.Error(err))
-							}else {
-								this.Push()
-							}
-
-							t.Stop()
+							this.Push()
 						}
-						log.Debug(fmt.Sprintf("fetch count = %d",fetchCount))
+
+						t.Stop()
 					}
+					fetchCount+=1
+					log.Info("ssq job",zap.Int("fetch count",fetchCount))
 				}
 
 			}
-
 		}
 	}(ticker)
 
 }
 
-func (this *Service) fetchSSQByRemote(count int) (ssqList []model.SSQ, err error) {
+
+func (this *Service)fetchSSQByRemote(count int) (ssqList []model.SSQ, err error) {
 	client := &http.Client{}
 	q := url.Values{}
 	q.Set("name", "ssq")
@@ -131,28 +162,3 @@ func (this *Service) fetchSSQByRemote(count int) (ssqList []model.SSQ, err error
 }
 
 
-func Substr(str string, start, length int) string {
-	if length == 0 {
-		return ""
-	}
-	rune_str := []rune(str)
-	len_str := len(rune_str)
-
-	if start < 0 {
-		start = len_str + start
-	}
-	if start > len_str {
-		start = len_str
-	}
-	end := start + length
-	if end > len_str {
-		end = len_str
-	}
-	if length < 0 {
-		end = len_str + length
-	}
-	if start > end {
-		start, end = end, start
-	}
-	return string(rune_str[start:end])
-}

@@ -16,5 +16,5 @@
     dir = "log"
     format = "json"
     link-name = "latest_log"
-    show-line = false
+    show-line = true
     log-in-console = true
