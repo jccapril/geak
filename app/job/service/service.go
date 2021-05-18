@@ -10,9 +10,9 @@ import (
 
 const (
 	ssqCronSpec = "0 0 21 * * TUE,THU,SUN"
-	//dltCronSpec = "0 30 20 * * MON,WED,SAT"
+	dltCronSpec = "0 30 20 * * MON,WED,SAT"
 	//ssqCronSpec = "0 1 * * * ?"
-	dltCronSpec = "0 25 * * * ?"
+	//dltCronSpec = "0 25 * * * ?"
 )
 
 
@@ -39,9 +39,8 @@ func New(c *conf.Config) (s *Service) {
 	//s.waiter.Add(1)
 	go s.GetLastestSSQByRemote()
 
-	//d,e := s.GETLastestDLTByRemote()
-	//fmt.Println(d,e)
-
+	go s.GETLastestDLTByRemote()
+	
 	return s
 }
 
