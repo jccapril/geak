@@ -9,8 +9,10 @@ import (
 )
 
 const (
-	//ssqCronSpec = "0 0 21 * * TUE,THU,SUN"
-	ssqCronSpec = "0 1 * * * ?"
+	ssqCronSpec = "0 0 21 * * TUE,THU,SUN"
+	//dltCronSpec = "0 30 20 * * MON,WED,SAT"
+	//ssqCronSpec = "0 1 * * * ?"
+	dltCronSpec = "0 25 * * * ?"
 )
 
 
@@ -32,9 +34,13 @@ func New(c *conf.Config) (s *Service) {
 	}
 
 	s.cron.AddFunc(ssqCronSpec,s.StartSSQJob)
+	s.cron.AddFunc(dltCronSpec,s.StartDLTJob)
 	s.cron.Start()
 	//s.waiter.Add(1)
-	s.GetLastestSSQByRemote()
+	go s.GetLastestSSQByRemote()
+
+	//d,e := s.GETLastestDLTByRemote()
+	//fmt.Println(d,e)
 
 	return s
 }

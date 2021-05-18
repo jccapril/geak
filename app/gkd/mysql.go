@@ -37,6 +37,11 @@ func InitData(){
 	if err != nil {
 		log.Fatal("创建 ssq 表 失败",zap.Error(err))
 	}
+	err = createDLTTable()
+	if err != nil {
+		log.Fatal("创建 dlt 表 失败",zap.Error(err))
+	}
+
 	ch := make(chan []*SSQ)
 	procData(ch)
 	go consumeData(ch)
@@ -113,7 +118,8 @@ func createSSQTable()(err error) {
 		second_count VARCHAR(10),	
 		second_money VARCHAR(20),
 		third_count VARCHAR(10),
-		third_money VARCHAR(20)
+		third_money VARCHAR(20),
+		content	VARCHAR(100)
         )charset=utf8;`
 	_,err = db.Exec(sqlStr)
 	return
@@ -173,3 +179,28 @@ func initDataFrom(year int,ch chan<- []*SSQ){
 	}
 	ch<-results
 }
+
+
+func createDLTTable()(err error) {
+	sqlStr := `CREATE TABLE IF NOT EXISTS dlt(
+        id INT(4) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+        code VARCHAR(7) UNIQUE,
+        date VARCHAR(20),
+        red VARCHAR(20),
+		blue VARCHAR(2),
+		blue2 VARCHAR(2),
+		sales VARCHAR(20),
+		pool_money VARCHAR(20),
+        first_count VARCHAR(10),
+		first_money VARCHAR(20),
+		second_count VARCHAR(10),	
+		second_money VARCHAR(20),
+		third_count VARCHAR(10),
+		third_money VARCHAR(20),
+		content	VARCHAR(100)
+        )charset=utf8;`
+	_,err = db.Exec(sqlStr)
+	return
+}
+
+

@@ -29,11 +29,6 @@ func main(){
 	service.New(conf.Conf)
 
 
-	//http.Init(conf.Conf, s)
-
-
-
-
 
 	signalHandler()
 

@@ -17,7 +17,7 @@ import (
 const (
 	ssq_host          = "http://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?"
 	last_ssq_code_key = "last_ssq_code_key"
-	duration          = 60
+	ssq_duration          = 60
 	ssq_expiration	  = 7*24*3600*time.Second
 )
 
@@ -84,7 +84,7 @@ func (this *Service)GetLastestSSQByRemote()(ssq *model.SSQ,err error){
 }
 
 func (this *Service)StartSSQJob(){
-	ticker := time.NewTicker(time.Second * duration)
+	ticker := time.NewTicker(time.Second * ssq_duration)
 	go func(t *time.Ticker) {
 		for {
 			select {
@@ -111,10 +111,10 @@ func (this *Service)StartSSQJob(){
 							"`blue2`, `sales`, `pool_money`," +
 							"`first_count`, `first_money`," +
 							"`second_count`, `second_money`," +
-							"`third_count`, `third_money`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+							"`third_count`, `third_money`, `content`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 						_,err := this.dao.DB.Exec(sqlStr,ssq.Code,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
 							ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
-							ssq.ThirdCount,ssq.ThirdMoney)
+							ssq.ThirdCount,ssq.ThirdMoney,ssq.Content)
 						if err != nil {
 							log.Error(sqlStr,zap.Error(err))
 						}else {

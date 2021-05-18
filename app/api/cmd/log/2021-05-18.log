@@ -1,0 +1,15 @@
+{"level":"INFO","time":"[geak]2021/05/18 - 09:55:07.613","caller":"grpc/lottery.go:41","msg":"request","ssq":"name:\"双色球\" code:\"2021053\" date:\"2021-05-16\" red:\"07\" red:\"10\" red:\"14\" red:\"16\" red:\"24\" red:\"33\" blue:\"16\" blue:\"\" sales:398009388 poolMoney:473183576 firstCount:3 firstMoney:10000000 secondCount:84 secondMoney:355480 thirdCount:1096 thirdMoney:3000"}
+{"level":"INFO","time":"[geak]2021/05/18 - 09:55:07.642","caller":"grpc/lottery.go:46","msg":"大乐透暂不支持"}
+{"level":"INFO","time":"[geak]2021/05/18 - 09:55:07.642","caller":"grpc/lottery.go:54","msg":"err","code":1002003}
+{"level":"INFO","time":"[geak]2021/05/18 - 09:55:18.706","caller":"grpc/lottery.go:41","msg":"request","ssq":"name:\"双色球\" code:\"2021053\" date:\"2021-05-16\" red:\"07\" red:\"10\" red:\"14\" red:\"16\" red:\"24\" red:\"33\" blue:\"16\" blue:\"\" sales:398009388 poolMoney:473183576 firstCount:3 firstMoney:10000000 secondCount:84 secondMoney:355480 thirdCount:1096 thirdMoney:3000"}
+{"level":"INFO","time":"[geak]2021/05/18 - 09:55:18.724","caller":"grpc/lottery.go:46","msg":"大乐透暂不支持"}
+{"level":"INFO","time":"[geak]2021/05/18 - 09:55:18.724","caller":"grpc/lottery.go:54","msg":"err","code":1002003}
+{"level":"INFO","time":"[geak]2021/05/18 - 09:55:50.289","caller":"grpc/lottery.go:41","msg":"request","ssq":"name:\"双色球\" code:\"2021053\" date:\"2021-05-16\" red:\"07\" red:\"10\" red:\"14\" red:\"16\" red:\"24\" red:\"33\" blue:\"16\" blue:\"\" sales:398009388 poolMoney:473183576 firstCount:3 firstMoney:10000000 secondCount:84 secondMoney:355480 thirdCount:1096 thirdMoney:3000"}
+{"level":"INFO","time":"[geak]2021/05/18 - 09:55:50.309","caller":"grpc/lottery.go:46","msg":"大乐透暂不支持"}
+{"level":"INFO","time":"[geak]2021/05/18 - 09:55:50.309","caller":"grpc/lottery.go:54","msg":"err","code":1002003}
+{"level":"INFO","time":"[geak]2021/05/18 - 10:20:55.504","caller":"grpc/lottery.go:41","msg":"request","ssq":"name:\"双色球\" code:\"2021053\" date:\"2021-05-16\" red:\"07\" red:\"10\" red:\"14\" red:\"16\" red:\"24\" red:\"33\" blue:\"16\" blue:\"\" sales:398009388 poolMoney:473183576 firstCount:3 firstMoney:10000000 secondCount:84 secondMoney:355480 thirdCount:1096 thirdMoney:3000"}
+{"level":"INFO","time":"[geak]2021/05/18 - 10:20:55.527","caller":"grpc/lottery.go:46","msg":"大乐透暂不支持"}
+{"level":"INFO","time":"[geak]2021/05/18 - 10:20:55.532","caller":"grpc/lottery.go:54","msg":"err","code":1002003}
+{"level":"INFO","time":"[geak]2021/05/18 - 10:26:22.521","caller":"grpc/lottery.go:41","msg":"request","ssq":"name:\"双色球\" code:\"2021053\" date:\"2021-05-16\" red:\"07\" red:\"10\" red:\"14\" red:\"16\" red:\"24\" red:\"33\" blue:\"16\" blue:\"\" sales:398009388 poolMoney:473183576 firstCount:3 firstMoney:10000000 secondCount:84 secondMoney:355480 thirdCount:1096 thirdMoney:3000"}
+{"level":"INFO","time":"[geak]2021/05/18 - 10:26:22.553","caller":"grpc/lottery.go:46","msg":"大乐透暂不支持"}
+{"level":"INFO","time":"[geak]2021/05/18 - 10:26:22.553","caller":"grpc/lottery.go:54","msg":"err","code":1002003}

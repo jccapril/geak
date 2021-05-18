@@ -30,15 +30,13 @@ func (c *Lottery) GetLastLottery(ctx context.Context, in *lottery.GetLastLottery
 	if !ok {
 		return makeErrorResponse(ecode.BidError,""), nil
 	}
-
 	if !strings.IsContain(bid,conf.Conf.App.Bid) {
 		return makeErrorResponse(ecode.BidError,""), nil
 	}
-
 	t := in.GetType()
 	if t == 0 {
 		ssq,err := lotterySrv.GetLastestSSQ()
-		log.Info("reponse",zap.Any("ssq",ssq))
+		log.Info("request",zap.Any("ssq",ssq))
 		return &lottery.GetLastLotteryResponse{
 			Lottery: ssq,
 		}, err
