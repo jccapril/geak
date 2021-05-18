@@ -40,7 +40,7 @@ func New(c *conf.Config) (s *Service) {
 	go s.GetLastestSSQByRemote()
 
 	go s.GETLastestDLTByRemote()
-	
+
 	return s
 }
 

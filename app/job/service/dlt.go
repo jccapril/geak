@@ -105,6 +105,9 @@ func (this *Service)GETLastestDLTByRemote()(dlt model.DLT, err error) {
 		return dlt,errors.New("format error")
 	}
 	err = mapstructure.Decode(d, &dlt)
+	if err == nil {
+		this.dao.RDB.Set(last_dlt_code_key,dlt.LotteryDrawNum,dlt_expiration)
+	}
 
 	return
 }
