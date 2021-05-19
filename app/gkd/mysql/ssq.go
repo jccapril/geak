@@ -1,79 +1,52 @@
-package gkd
+package mysql
 
 import (
+	"errors"
 	"fmt"
+	"geak/gkd/model"
 	"geak/libs/conf"
-	"geak/libs/database"
+	"geak/libs/factory"
 	"geak/libs/log"
-	sql "github.com/jmoiron/sqlx"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"regexp"
 	"strings"
-	"sync"
 )
 
-var db *sql.DB
-
 const (
-	bodyExpr = "<tbody class=\"list-tr\">([\\s\\S]*?)</tbody>"
+	ssqBodyExpr = "<tbody class=\"list-tr\">([\\s\\S]*?)</tbody>"
 	ssqListExpr = "<tr[\\s\\S]*?>([\\s\\S]*?)</tr>"
 	ssqElementExpr = "<td>([\\s\\S]*?)</td>"
 	ssqRedBallExpr = "<span class=\"red\">([\\s\\S]*?)</span>"
 	ssqBlueBallExpr = "<span class=\"blue\">([\\s\\S]*?)</span>"
-
 )
 
-
-func Init(config *conf.Config){
-	 db = database.NewMySQL(config.DB)
-}
-
-//var ch = make(chan []*SSQ)
-var wg = sync.WaitGroup{}
-
-func InitData(){
-	err := createSSQTable()
-	if err != nil {
-		log.Fatal("创建 ssq 表 失败",zap.Error(err))
-	}
-	err = createDLTTable()
-	if err != nil {
-		log.Fatal("创建 dlt 表 失败",zap.Error(err))
-	}
-
-	ch := make(chan []*SSQ)
-	procData(ch)
-	go consumeData(ch)
-
-	wg.Wait()
-}
-
-func procData(ch chan<- []*SSQ) {
-	for year := 2003; year <= 2021; year++ {
-		wg.Add(1)
-		go initDataFrom(year,ch)
-	}
-}
-
-func consumeData(ch <-chan []*SSQ){
-	for {
-		result := <-ch
-		insertYearData(result)
-		wg.Done()
-	}
+type SSQClient struct {
+	Year int
 }
 
 
-func insertYearData(data []*SSQ){
+func (this *SSQClient) Produce()(dlt interface{},err error) {
+
+	if this.Year > 2021 {
+		return nil,errors.New("year > 2021")
+	}
+	ssqList,err := this.decodeFile(fmt.Sprintf("%s/ssq_history/%d.html",conf.Conf.App.Resources,this.Year))
+	this.Year++
+	return ssqList,err
+}
+
+func (this *SSQClient) Consume(ssq interface{})(result *factory.Result,err error) {
+	data,isOK := ssq.([]*model.SSQ)
+	if !isOK {
+		return result,errors.New("ssq format error")
+	}
+
 	sqlStr := `INSERT INTO ssq(code, date, red, blue, 
                          blue2, sales, pool_money, 
                          first_count, first_money,
                          second_count, second_money,
  						 third_count, third_money) VALUES`
-
 	vals := []interface{}{}
-
 	for i := len(data)-1; i >=0; i-- {
 		row := data[i]
 		sqlStr += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),"
@@ -85,71 +58,39 @@ func insertYearData(data []*SSQ){
 	//prepare the statement
 	stmt, err := db.Prepare(sqlStr)
 	if err != nil {
-		log.Fatal("ls",zap.Error(err))
+		return
 	}
 	defer stmt.Close()
 	//format all vals at once
 	res, err := stmt.Exec(vals...)
 	if err != nil {
-		log.Error("sql exec 失败",zap.Error(err))
 		return
 	}
 	count, err := res.RowsAffected()
 	if err != nil {
-		log.Error("获取影响条目数量失败",zap.Error(err))
+		return
 	}
-	log.Info(fmt.Sprintf("数据导入成功,一共导入%d条数据\n",count))
-
-}
-
-
-func createSSQTable()(err error) {
-	sqlStr := `CREATE TABLE IF NOT EXISTS ssq(
-        id INT(4) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-        code VARCHAR(7) UNIQUE,
-        date VARCHAR(20),
-        red VARCHAR(20),
-		blue VARCHAR(2),
-		blue2 VARCHAR(2),
-		sales VARCHAR(20),
-		pool_money VARCHAR(20),
-        first_count VARCHAR(10),
-		first_money VARCHAR(20),
-		second_count VARCHAR(10),	
-		second_money VARCHAR(20),
-		third_count VARCHAR(10),
-		third_money VARCHAR(20),
-		content	VARCHAR(100)
-        )charset=utf8;`
-	_,err = db.Exec(sqlStr)
+	log.Info(fmt.Sprintf("年份%v数据导入成功,一共导入%d条数据\n",data[0].Code,count))
 	return
 }
 
-
-func initDataFrom(year int,ch chan<- []*SSQ){
-	log.Info(fmt.Sprintf("开始导入%d年数据\n",year))
-	content, err := ioutil.ReadFile(fmt.Sprintf("%s/ssq_history/%d.html",conf.Conf.App.Resources,year)) // just pass the file name
+func (this *SSQClient) decodeFile(filePath string)(results []*model.SSQ,err error){
+	var content []byte
+	content, err = ioutil.ReadFile(filePath) // just pass the file name
 	if err != nil {
-		fmt.Print(err)
-
+		return
 	}
 	input := string(content)
-	body := regexp.MustCompile(bodyExpr).FindAllStringSubmatch(input,1)[0][1]
+	body := regexp.MustCompile(ssqBodyExpr).FindAllStringSubmatch(input,1)[0][1]
 	ssqList := regexp.MustCompile(ssqListExpr).FindAllStringSubmatch(body,162)
-	results := make([]*SSQ,0)
 	for _, ssq := range ssqList {
-		val := new(SSQ)
+		val := new(model.SSQ)
 		result := regexp.MustCompile(ssqElementExpr).FindAllStringSubmatch(ssq[1],12)
 		if len(result) < 12 {
-			break
+			continue
 		}
 		val.Code = result[0][1]
-
 		val.Date = result[1][1]
-		//if strings.Split(val.Date,"-")[0] != strconv.Itoa(year) {
-		//	log.Fatalf("year:%d 有问题",year)
-		//	log.Fatal(f)
-		//}
 		ballString := result[2][1]
 		redList := regexp.MustCompile(ssqRedBallExpr).FindAllStringSubmatch(ballString,6)
 		var reds []string
@@ -177,12 +118,13 @@ func initDataFrom(year int,ch chan<- []*SSQ){
 		val.ThirdMoney = strings.ReplaceAll(result[10][1],",","")
 		results = append(results, val)
 	}
-	ch<-results
+	return
 }
 
 
-func createDLTTable()(err error) {
-	sqlStr := `CREATE TABLE IF NOT EXISTS dlt(
+
+func createSSQTable()(err error) {
+	sqlStr := `CREATE TABLE IF NOT EXISTS ssq(
         id INT(4) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         code VARCHAR(7) UNIQUE,
         date VARCHAR(20),
@@ -202,5 +144,6 @@ func createDLTTable()(err error) {
 	_,err = db.Exec(sqlStr)
 	return
 }
+
 
 

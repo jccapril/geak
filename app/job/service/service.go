@@ -18,10 +18,12 @@ const (
 
 type Service struct {
 	dao	*dao.Dao
-	c			*conf.Config
-	waiter   	*sync.WaitGroup
+	c				*conf.Config
+	waiter   		*sync.WaitGroup
 	// cron
-	cron *cron.Cron
+	cron 			*cron.Cron
+	lastestSSQCode 	string
+	lastestDLTCode	string
 }
 
 func New(c *conf.Config) (s *Service) {

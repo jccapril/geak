@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"geak/job/model"
 	"geak/libs/log"
 	"github.com/goinggo/mapstructure"
@@ -21,7 +22,7 @@ const (
 )
 
 var dltFetchCount = 0
-
+var dltNeedUpdate = false
 func (this *Service)StartDLTJob(){
 	ticker := time.NewTicker(time.Second * dlt_duration)
 	go func(t *time.Ticker) {
@@ -32,7 +33,7 @@ func (this *Service)StartDLTJob(){
 				if err != nil {
 					log.Error("dlt remote",zap.Error(err))
 				}else {
-
+					code := fmt.Sprintf("20",dlt.LotteryDrawNum)
 					date := strings.Split(dlt.LotteryDrawTime," ")[0]
 					balls := strings.Split(dlt.LotteryDrawResult," ")
 					redBalls := balls[0:5]
@@ -41,24 +42,35 @@ func (this *Service)StartDLTJob(){
 					poolMoney := strings.ReplaceAll(dlt.PoolBalanceAfterdraw,",","")
 					isExist := this.GetDLTCountFromDBByCode(dlt.LotteryDrawNum) > 0
 					if isExist {
-						sqlStr := "UPDATE `dlt` SET `date`=?,`red`=?,`blue`=?,`blue2`=?,`pool_money`=?,`content`=? WHERE `code`=?"
-
-						_,err := this.dao.DB.Exec(sqlStr,date,red,blueBalls[0],blueBalls[1],poolMoney,dlt.DrawPdfUrl,dlt.LotteryDrawNum)
-						if err != nil {
-							log.Error(sqlStr,zap.Error(err))
+						if dltNeedUpdate {
+							sqlStr := "UPDATE `dlt` SET `date`=?,`red`=?,`blue`=?,`blue2`=?,`pool_money`=?,`content`=? WHERE `code`=?"
+							_,err := this.dao.DB.Exec(sqlStr,date,red,blueBalls[0],blueBalls[1],poolMoney,dlt.DrawPdfUrl,code)
+							if err != nil {
+								log.Error(sqlStr,zap.Error(err))
+							}else {
+								if dlt.IsCompleted() {
+									dltNeedUpdate = false
+									t.Stop()
+								}
+							}
 						}
 
 					}else {
 						sqlStr := "INSERT INTO `dlt`(`code`, `date`, `red`, `blue`," +
 							"`blue2`, `pool_money`,`content`) VALUES (?, ?, ?, ?, ?, ?, ?)"
-						_,err := this.dao.DB.Exec(sqlStr,dlt.LotteryDrawNum,date,red,blueBalls[0],blueBalls[1],poolMoney,dlt.DrawPdfUrl)
+						_,err := this.dao.DB.Exec(sqlStr,code,date,red,blueBalls[0],blueBalls[1],poolMoney,dlt.DrawPdfUrl)
 						if err != nil {
 							log.Error(sqlStr,zap.Error(err))
 						}else {
+							if dlt.IsCompleted() {
+								dltNeedUpdate = false
+								t.Stop()
+							}else {
+								dltNeedUpdate = true
+							}
 							this.Push()
 						}
 
-						t.Stop()
 					}
 					dltFetchCount+=1
 					log.Info("dlt job",zap.Int("fetch count",dltFetchCount))

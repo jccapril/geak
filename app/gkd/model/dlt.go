@@ -1,6 +1,6 @@
-package gkd
+package model
 
-type SSQ struct {
+type DLT struct {
 	Code 		string
 	Date 		string
 	Red			string

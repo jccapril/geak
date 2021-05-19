@@ -21,7 +21,9 @@ const (
 	ssq_expiration	  = 7*24*3600*time.Second
 )
 
-var fetchCount = 0
+var ssqFetchCount = 0
+
+var ssqNeedUpdate = false
 
 func (this *Service)GetSSQFromDBByCode(code string)(ssq *model.SSQ,err error) {
 	sqlStr := "SELECT `code`,`date`,`red`,`blue`,`blue2`,`sales`,`pool_money`,`first_count`," +
@@ -95,15 +97,22 @@ func (this *Service)StartSSQJob(){
 				}else {
 					isExist := this.GetSSQCountFromDBByCode(ssq.Code) > 0
 					if isExist {
-						sqlStr := "UPDATE `ssq` SET `date`=?,`red`=?,`blue`=?,`blue2`=?," +
-							"`sales`=?,`pool_money`=?,`first_count`=?,`first_money`=?," +
-							"`second_count`=?,`second_money`=?,`third_count`=?,`third_money`=? WHERE `code`=?"
+						if ssqNeedUpdate {
+							sqlStr := "UPDATE `ssq` SET `date`=?,`red`=?,`blue`=?,`blue2`=?," +
+								"`sales`=?,`pool_money`=?,`first_count`=?,`first_money`=?," +
+								"`second_count`=?,`second_money`=?,`third_count`=?,`third_money`=? WHERE `code`=?"
 
-						_,err := this.dao.DB.Exec(sqlStr,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
-							ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
-							ssq.ThirdCount,ssq.ThirdMoney,ssq.Code)
-						if err != nil {
-							log.Error(sqlStr,zap.Error(err))
+							_,err := this.dao.DB.Exec(sqlStr,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
+								ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
+								ssq.ThirdCount,ssq.ThirdMoney,ssq.Code)
+							if err != nil {
+								log.Error(sqlStr,zap.Error(err))
+							}else {
+								if ssq.IsCompleted() {
+									ssqNeedUpdate = false
+									t.Stop()
+								}
+							}
 						}
 
 					}else {
@@ -118,13 +127,19 @@ func (this *Service)StartSSQJob(){
 						if err != nil {
 							log.Error(sqlStr,zap.Error(err))
 						}else {
+							if ssq.IsCompleted() {
+								ssqNeedUpdate = false
+								t.Stop()
+							}else  {
+								ssqNeedUpdate = true
+							}
 							this.Push()
+
 						}
 
-						t.Stop()
 					}
-					fetchCount+=1
-					log.Info("ssq job",zap.Int("fetch count",fetchCount))
+					ssqFetchCount+=1
+					log.Info("ssq job",zap.Int("fetch count",ssqFetchCount))
 				}
 
 			}

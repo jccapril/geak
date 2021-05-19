@@ -1,5 +1,7 @@
 package model
 
+import "geak/tools/strings"
+
 type SSQ struct {
 	// 名字
 	Name string 		`json:"name"`
@@ -40,7 +42,7 @@ type Prizegrade struct {
 func (this *SSQ)TransFormat(){
 	this.transPrizegradesFmt()
 	if len(this.Date) > 10 {
-		this.Date = substr(this.Date,0,10)
+		this.Date = strings.Substr(this.Date,0,10)
 	}
 }
 
@@ -55,28 +57,13 @@ func (this *SSQ)transPrizegradesFmt(){
 	}
 }
 
-func substr(str string, start, length int) string {
-	if length == 0 {
-		return ""
-	}
-	rune_str := []rune(str)
-	len_str := len(rune_str)
+func (this *SSQ)IsCompleted()(bool) {
 
-	if start < 0 {
-		start = len_str + start
-	}
-	if start > len_str {
-		start = len_str
-	}
-	end := start + length
-	if end > len_str {
-		end = len_str
-	}
-	if length < 0 {
-		end = len_str + length
-	}
-	if start > end {
-		start, end = end, start
-	}
-	return string(rune_str[start:end])
+	return len(this.FirstCount) > 0 && len(this.FirstMoney) > 0 &&
+		len(this.SecondCount) > 0 && len(this.SecondMoney) > 0 &&
+		len(this.ThirdCount) > 0 && len(this.ThirdMoney) > 0 &&
+		len(this.Sales) > 0 && len(this.PoolMoney) > 0 &&
+		len(this.Red) > 0 && len(this.Blue) > 0 &&
+		len(this.Code) > 0 && len(this.Date) > 0
+
 }
