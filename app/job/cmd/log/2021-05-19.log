@@ -1,2 +1,0 @@
-{"level":"INFO","time":"[geak]2021/05/19 - 11:29:10.430","caller":"service/ssq.go:127","msg":"ssq job","fetch count":1}
-{"level":"INFO","time":"[geak]2021/05/19 - 14:16:51.032","caller":"cmd/main.go:48","msg":"get a signal %s, stop the consume process","sigal":"interrupt"}
