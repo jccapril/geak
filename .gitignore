@@ -6,7 +6,7 @@
 
 .idea
 
-.log
+*.log
 
 # Binaries for programs and plugins
 *.exe
