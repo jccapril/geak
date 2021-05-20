@@ -1,3 +1,7 @@
+/*
+ 蒋晨成 @copyright
+ */
+
 package main
 
 import (
@@ -25,10 +29,7 @@ func main(){
 		panic(err)
 	}
 	log.Init(conf.Conf.Log)
-
 	service.New(conf.Conf)
-
-
 
 	signalHandler()
 
