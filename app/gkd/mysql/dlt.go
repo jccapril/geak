@@ -124,11 +124,11 @@ func (this *DLTClient) decodeFile(filePath string)(result []*model.DLT,err error
 		dlt.Blue = blueBall[0][1]
 		dlt.Blue2 = blueBall[1][1]
 		dlt.FirstCount = element[4][1]
-		dlt.FirstMoney = element[5][1]
+		dlt.FirstMoney = strings.ReplaceAll(element[5][1],",","")
 		dlt.SecondCount = element[6][1]
-		dlt.SecondMoney = element[7][1]
+		dlt.SecondMoney = strings.ReplaceAll(element[7][1],",","")
 		dlt.ThirdCount = element[8][1]
-		dlt.ThirdMoney = element[9][1]
+		dlt.ThirdMoney = strings.ReplaceAll(element[9][1],"","")
 		result = append(result, dlt)
 	}
 	return
