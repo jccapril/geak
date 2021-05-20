@@ -1,5 +1,5 @@
 /*
- 蒋晨成 @copyright
+ 蒋晨成 jjc @copyright
  */
 
 package main
