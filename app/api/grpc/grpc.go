@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"geak/api/service/lottery"
-	gateway_lottery "geak/libs/biz/lottery"
+	gateway_lottery "geak/biz/lottery"
 	"geak/libs/conf"
 	"google.golang.org/grpc"
 	"net"

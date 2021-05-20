@@ -2,12 +2,12 @@ package grpc
 
 import (
 	"context"
-	"geak/libs/biz/m"
+	"geak/biz/lottery"
+	"geak/biz/m"
 	"geak/libs/conf"
 	"geak/libs/ecode"
 	"geak/libs/log"
 	"geak/tools/strings"
-	"geak/libs/biz/lottery"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 )
@@ -20,7 +20,6 @@ type Lottery struct {
 }
 
 func (c *Lottery) GetLastestLottery(ctx context.Context, in *lottery.GetLastestLotteryRequest) (*lottery.GetLastestLotteryResponse,error) {
-
 	var err error
 	// 获取请求头
 	header, ok := metadata.FromIncomingContext(ctx)
@@ -36,21 +35,26 @@ func (c *Lottery) GetLastestLottery(ctx context.Context, in *lottery.GetLastestL
 	}
 	isDLT := in.GetDlt()
 	isSSQ := in.GetSsq()
-	lotteryList := make([]*m.Lottery,2)
+	lotteryList := make([]*m.Lottery,0,2)
 	if isSSQ {
 		ssq,err := lotterySrv.GetLastestSSQ()
 		if err != nil {
 			log.Error("GetLastestSSQ",zap.Error(err))
+		}else {
+			lotteryList = append(lotteryList, ssq)
 		}
-		lotteryList = append(lotteryList, ssq)
-	} else if isDLT{
-
 	}
-
+	if isDLT {
+		dlt, err := lotterySrv.GetLastestDLT()
+		if err != nil {
+			log.Error("GetLastestdlt", zap.Error(err))
+		} else {
+			lotteryList = append(lotteryList, dlt)
+		}
+	}
 	return &lottery.GetLastestLotteryResponse{
 		Lottery:lotteryList,
 	},err
-
 }
 
 
