@@ -1,4 +1,0 @@
-{"level":"DEBUG","time":"[geak]2021/05/14 - 17:11:00.159","caller":"service/ssq.go:66","msg":"ssq数据库里已经有了,update"}
-{"level":"DEBUG","time":"[geak]2021/05/14 - 17:11:00.177","caller":"service/ssq.go:96","msg":"fetch count = 1"}
-{"level":"DEBUG","time":"[geak]2021/05/14 - 17:12:00.244","caller":"service/ssq.go:66","msg":"ssq数据库里已经有了,update"}
-{"level":"DEBUG","time":"[geak]2021/05/14 - 17:12:00.252","caller":"service/ssq.go:96","msg":"fetch count = 2"}
