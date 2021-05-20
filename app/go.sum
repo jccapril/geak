@@ -1,6 +1,4 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
-gitee.com/jlab/biz v1.0.4 h1:2gncJdKP5396PRvYN9V0mNe5KpTlnAwB6WAeP4W9FWQ=
-gitee.com/jlab/biz v1.0.4/go.mod h1:CXKdFlmRuml4CRWKRSX4/tu0xkH40HTQq1AXrWs6CeM=
 gitee.com/jlab/biz v1.0.5 h1:dbNKe4wqoL2VRwxLJZEX9qX7qxcuzUOnC2e+ZN+mvx0=
 gitee.com/jlab/biz v1.0.5/go.mod h1:CXKdFlmRuml4CRWKRSX4/tu0xkH40HTQq1AXrWs6CeM=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=

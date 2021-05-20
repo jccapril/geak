@@ -2,8 +2,8 @@ package grpc
 
 import (
 	"geak/api/service/lottery"
+	gateway_lottery "geak/libs/biz/lottery"
 	"geak/libs/conf"
-	gateway_lottery "gitee.com/jlab/biz/lottery"
 	"google.golang.org/grpc"
 	"net"
 )
