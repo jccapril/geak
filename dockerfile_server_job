@@ -1,0 +1,16 @@
+FROM golang:alpine AS development
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
+WORKDIR /go/src/geak
+COPY app/ ./
+RUN go build -o gkd/gkd gkd/cmd/main.go
+RUN go env && go build -o job/job job/cmd/main.go
+
+FROM alpine:latest AS production
+WORKDIR /go/src/geak
+COPY --from=development /go/src/geak/gkd/gkd ./
+COPY --from=development /go/src/geak/job/job ./
+COPY --from=development /go/src/geak/conf.toml ./
+COPY --from=development /go/src/geak/gkd/resources ./resources
+#EXPOSE 8686
+ENTRYPOINT ./gkd && ./job

@@ -1,0 +1,14 @@
+FROM golang:alpine AS development
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
+WORKDIR /go/src/geak
+COPY app/ ./
+RUN go env && go build -o api/server api/cmd/main.go
+
+FROM alpine:latest AS production
+WORKDIR /go/src/geak
+COPY --from=development /go/src/geak/api/server ./
+COPY --from=development /go/src/geak/conf.toml ./
+
+EXPOSE 443
+ENTRYPOINT ./server
