@@ -1,0 +1,19 @@
+[db]
+    addr = "127.0.0.1:13306"
+    dbName = "geak"
+    userName = "root"
+    password = "Jcc@744578095"
+    config = "charset=utf8&parseTime=true&loc=Local"
+[redis]
+    db = 0
+    addr = "127.0.0.1:16379"
+    password = ""
+[Log]
+    level = "debug"
+    prefix = "[geak]"
+    dir = "log"
+    format = "json"
+    link-name = "latest_log"
+    show-line = true
+    log-in-console = true
+
