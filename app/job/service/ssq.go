@@ -17,13 +17,9 @@ import (
 const (
 	ssq_host          = "http://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?"
 	last_ssq_code_key = "last_ssq_code_key"
-	ssq_duration          = 60
 	ssq_expiration	  = 7*24*3600*time.Second
 )
 
-var ssqFetchCount = 0
-
-var ssqNeedUpdate = false
 
 func (this *Service)GetSSQFromDBByCode(code string)(ssq *model.SSQ,err error) {
 	sqlStr := "SELECT `code`,`date`,`red`,`blue`,`blue2`,`sales`,`pool_money`,`first_count`," +
@@ -86,65 +82,39 @@ func (this *Service)GetLastestSSQByRemote()(ssq *model.SSQ,err error){
 }
 
 func (this *Service)StartSSQJob(){
-	ticker := time.NewTicker(time.Second * ssq_duration)
-	go func(t *time.Ticker) {
-		for {
-			select {
-			case <-t.C:
-				ssq,err := this.GetLastestSSQByRemote()
-				if err != nil {
-					log.Error("ssq remote",zap.Error(err))
-				}else {
-					isExist := this.GetSSQCountFromDBByCode(ssq.Code) > 0
-					if isExist {
-						if ssqNeedUpdate {
-							sqlStr := "UPDATE `ssq` SET `date`=?,`red`=?,`blue`=?,`blue2`=?," +
-								"`sales`=?,`pool_money`=?,`first_count`=?,`first_money`=?," +
-								"`second_count`=?,`second_money`=?,`third_count`=?,`third_money`=? WHERE `code`=?"
-
-							_,err := this.dao.DB.Exec(sqlStr,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
-								ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
-								ssq.ThirdCount,ssq.ThirdMoney,ssq.Code)
-							if err != nil {
-								log.Error(sqlStr,zap.Error(err))
-							}else {
-								if ssq.IsCompleted() {
-									ssqNeedUpdate = false
-									t.Stop()
-								}
-							}
-						}
-
-					}else {
-						sqlStr := "INSERT INTO `ssq`(`code`, `date`, `red`, `blue`," +
-							"`blue2`, `sales`, `pool_money`," +
-							"`first_count`, `first_money`," +
-							"`second_count`, `second_money`," +
-							"`third_count`, `third_money`, `content`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-						_,err := this.dao.DB.Exec(sqlStr,ssq.Code,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
-							ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
-							ssq.ThirdCount,ssq.ThirdMoney,ssq.Content)
-						if err != nil {
-							log.Error(sqlStr,zap.Error(err))
-						}else {
-							if ssq.IsCompleted() {
-								ssqNeedUpdate = false
-								t.Stop()
-							}else  {
-								ssqNeedUpdate = true
-							}
-							this.Push()
-
-						}
-
-					}
-					ssqFetchCount+=1
-					log.Info("ssq job",zap.Int("fetch count",ssqFetchCount))
-				}
-
+	ssq,err := this.GetLastestSSQByRemote()
+	if err != nil {
+		log.Error("ssq remote",zap.Error(err))
+	}else {
+		isExist := this.GetSSQCountFromDBByCode(ssq.Code) > 0
+		if isExist {
+			log.Info("update ssq",zap.Any("ssq",ssq))
+			sqlStr := "UPDATE `ssq` SET `date`=?,`red`=?,`blue`=?,`blue2`=?," +
+				"`sales`=?,`pool_money`=?,`first_count`=?,`first_money`=?," +
+				"`second_count`=?,`second_money`=?,`third_count`=?,`third_money`=?, `content`=? WHERE `code`=?"
+			_,err := this.dao.DB.Exec(sqlStr,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
+				ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
+				ssq.ThirdCount,ssq.ThirdMoney, ssq.Content,ssq.Code)
+			if err != nil {
+				log.Error(sqlStr,zap.Error(err))
+			}
+		}else {
+			log.Info("insert new ssq",zap.Any("ssq",ssq))
+			sqlStr := "INSERT INTO `ssq`(`code`, `date`, `red`, `blue`," +
+				"`blue2`, `sales`, `pool_money`," +
+				"`first_count`, `first_money`," +
+				"`second_count`, `second_money`," +
+				"`third_count`, `third_money`, `content`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+			_,err := this.dao.DB.Exec(sqlStr,ssq.Code,ssq.Date,ssq.Red,ssq.Blue,ssq.Blue2,ssq.Sales,
+				ssq.PoolMoney,ssq.FirstCount,ssq.FirstMoney,ssq.SecondCount,ssq.SecondMoney,
+				ssq.ThirdCount,ssq.ThirdMoney,ssq.Content)
+			if err != nil {
+				log.Error(sqlStr,zap.Error(err))
+			}else {
+				this.Push()
 			}
 		}
-	}(ticker)
+	}
 }
 
 
@@ -173,5 +143,7 @@ func (this *Service)fetchSSQByRemote(count int) (ssqList []model.SSQ, err error)
 	err = mapstructure.Decode(resultList, &ssqList)
 	return
 }
+
+
 
 

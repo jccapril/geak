@@ -56,14 +56,3 @@ func (this *SSQ)transPrizegradesFmt(){
 		this.ThirdMoney = this.Prizegrades[2].Typemoney
 	}
 }
-
-func (this *SSQ)IsCompleted()(bool) {
-
-	return len(this.FirstCount) > 0 && len(this.FirstMoney) > 0 &&
-		len(this.SecondCount) > 0 && len(this.SecondMoney) > 0 &&
-		len(this.ThirdCount) > 0 && len(this.ThirdMoney) > 0 &&
-		len(this.Sales) > 0 && len(this.PoolMoney) > 0 &&
-		len(this.Red) > 0 && len(this.Blue) > 0 &&
-		len(this.Code) > 0 && len(this.Date) > 0
-
-}

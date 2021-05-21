@@ -9,10 +9,16 @@ import (
 )
 
 const (
-	ssqCronSpec = "0 0 21 * * TUE,THU,SUN"
-	dltCronSpec = "0 30 20 * * MON,WED,SAT"
-	//ssqCronSpec = "0 1 * * * ?"
-	//dltCronSpec = "0 25 * * * ?"
+
+
+	ssqCronSpec = "0 */1 21-23 * * TUE,THU,SUN"
+
+	dltCronSpec1 = "0 30/1 20 * * MON,WED,SAT"
+	dltCronSpec2 = "0 */1 21-23 * * MON,WED,SAT"
+
+	otherCronSpec = "0 0 */1 * * ?"
+
+	//otherCronSpec = "*/5 * * * * ?"
 )
 
 
@@ -36,25 +42,24 @@ func New(c *conf.Config) (s *Service) {
 	}
 
 	s.cron.AddFunc(ssqCronSpec,s.StartSSQJob)
-	s.cron.AddFunc(dltCronSpec,s.StartDLTJob)
+	s.cron.AddFunc(dltCronSpec1,s.StartDLTJob)
+	s.cron.AddFunc(dltCronSpec2,s.StartDLTJob)
+	s.cron.AddFunc(otherCronSpec,s.StartSSQJob)
+	s.cron.AddFunc(otherCronSpec,s.StartDLTJob)
 	s.cron.Start()
-	//s.waiter.Add(1)
-	go s.GetLastestSSQByRemote()
-
-	go s.GETLastestDLTByRemote()
 
 	return s
 }
 
 
 // Close close service.
-func (s *Service) Close() (err error) {
-	defer s.waiter.Wait()
-	s.cron.Stop()
+func (this *Service) Close() (err error) {
+	defer this.waiter.Wait()
+	this.cron.Stop()
 	return
 }
 
 // Ping check service health.
-func (s *Service) Ping(c context.Context) error {
-	return s.dao.Ping(c)
+func (this *Service) Ping(c context.Context) error {
+	return this.dao.Ping(c)
 }

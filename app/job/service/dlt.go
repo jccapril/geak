@@ -17,69 +17,43 @@ import (
 const (
 	dlt_host          = "https://webapi.sporttery.cn/gateway/lottery/getDigitalDrawInfoV1.qry?param=85,0&isVerify=1"
 	last_dlt_code_key = "last_dlt_code_key"
-	dlt_duration          = 60
 	dlt_expiration	  = 7*24*3600*time.Second
 )
 
-var dltFetchCount = 0
-var dltNeedUpdate = false
 func (this *Service)StartDLTJob(){
-	ticker := time.NewTicker(time.Second * dlt_duration)
-	go func(t *time.Ticker) {
-		for {
-			select {
-			case <-t.C:
-				dlt,err := this.GETLastestDLTByRemote()
-				if err != nil {
-					log.Error("dlt remote",zap.Error(err))
-				}else {
-					code := fmt.Sprintf("20",dlt.LotteryDrawNum)
-					date := strings.Split(dlt.LotteryDrawTime," ")[0]
-					balls := strings.Split(dlt.LotteryDrawResult," ")
-					redBalls := balls[0:5]
-					blueBalls := balls[5:7]
-					red := strings.Join(redBalls,",")
-					poolMoney := strings.ReplaceAll(dlt.PoolBalanceAfterdraw,",","")
-					isExist := this.GetDLTCountFromDBByCode(dlt.LotteryDrawNum) > 0
-					if isExist {
-						if dltNeedUpdate {
-							sqlStr := "UPDATE `dlt` SET `date`=?,`red`=?,`blue`=?,`blue2`=?,`pool_money`=?,`content`=? WHERE `code`=?"
-							_,err := this.dao.DB.Exec(sqlStr,date,red,blueBalls[0],blueBalls[1],poolMoney,dlt.DrawPdfUrl,code)
-							if err != nil {
-								log.Error(sqlStr,zap.Error(err))
-							}else {
-								if dlt.IsCompleted() {
-									dltNeedUpdate = false
-									t.Stop()
-								}
-							}
-						}
-
-					}else {
-						sqlStr := "INSERT INTO `dlt`(`code`, `date`, `red`, `blue`," +
-							"`blue2`, `pool_money`,`content`) VALUES (?, ?, ?, ?, ?, ?, ?)"
-						_,err := this.dao.DB.Exec(sqlStr,code,date,red,blueBalls[0],blueBalls[1],poolMoney,dlt.DrawPdfUrl)
-						if err != nil {
-							log.Error(sqlStr,zap.Error(err))
-						}else {
-							if dlt.IsCompleted() {
-								dltNeedUpdate = false
-								t.Stop()
-							}else {
-								dltNeedUpdate = true
-							}
-							this.Push()
-						}
-
-					}
-					dltFetchCount+=1
-					log.Info("dlt job",zap.Int("fetch count",dltFetchCount))
-				}
+	dlt,err := this.GETLastestDLTByRemote()
+	if err != nil {
+		log.Error("dlt remote",zap.Error(err))
+	}else {
+		code := fmt.Sprintf("20%s",dlt.LotteryDrawNum)
+		date := strings.Split(dlt.LotteryDrawTime," ")[0]
+		balls := strings.Split(dlt.LotteryDrawResult," ")
+		redBalls := balls[0:5]
+		blueBalls := balls[5:7]
+		red := strings.Join(redBalls,",")
+		poolMoney := strings.ReplaceAll(dlt.PoolBalanceAfterdraw,",","")
+		isExist := this.GetDLTCountFromDBByCode(code) > 0
+		if isExist {
+			log.Info("update dlt",zap.Any("dlt",dlt))
+			sqlStr := "UPDATE `dlt` SET `date`=?,`red`=?,`blue`=?,`blue2`=?,`pool_money`=?,`content`=? WHERE `code`=?"
+			_,err := this.dao.DB.Exec(sqlStr,date,red,blueBalls[0],blueBalls[1],poolMoney,dlt.DrawPdfUrl,code)
+			if err != nil {
+				log.Error(sqlStr,zap.Error(err))
+			}
+		}else {
+			log.Info("insert new dlt",zap.Any("dlt",dlt))
+			sqlStr := "INSERT INTO `dlt`(`code`, `date`, `red`, `blue`," +
+				"`blue2`, `pool_money`,`content`) VALUES (?, ?, ?, ?, ?, ?, ?)"
+			_,err := this.dao.DB.Exec(sqlStr,code,date,red,blueBalls[0],blueBalls[1],poolMoney,dlt.DrawPdfUrl)
+			if err != nil {
+				log.Error(sqlStr,zap.Error(err))
+			}else {
+				this.Push()
 			}
 		}
+	}
 
 
-	}(ticker)
 }
 
 
